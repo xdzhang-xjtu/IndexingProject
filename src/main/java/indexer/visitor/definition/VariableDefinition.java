@@ -1,4 +1,4 @@
-package visitor.definition;
+package indexer.visitor.definition;
 
 public class VariableDefinition {
 }

@@ -1,4 +1,4 @@
-package integration;
+package indexer.integration;
 
 public class IntegrationTable {
 }

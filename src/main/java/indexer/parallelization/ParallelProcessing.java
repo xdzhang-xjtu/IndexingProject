@@ -1,4 +1,4 @@
-package parallel;
+package indexer.parallelization;
 
 public class ParallelProcessing {
 }

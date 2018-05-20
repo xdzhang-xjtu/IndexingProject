@@ -1,4 +1,4 @@
-package visitor.reference;
+package indexer.visitor.reference;
 
 public class VariableReference {
 }
