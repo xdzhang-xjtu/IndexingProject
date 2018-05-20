@@ -1,4 +1,4 @@
 package indexer.visitor.reference;
 
-public class ClassReference {
+public class ClassReferenceVisitor {
 }

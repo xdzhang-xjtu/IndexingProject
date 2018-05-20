@@ -3,7 +3,7 @@ package indexer;
 import indexer.dataunit.project.ProjectTree;
 
 public class Indexing {
-    static public ProjectTree projectTree = new ProjectTree();
+    static public ProjectTree project = new ProjectTree();
 
     static public void main(String[] args) {
 //        if (args.length == 0){
@@ -15,8 +15,14 @@ public class Indexing {
 //            return;
 //        }
 
-        projectTree.setPath("/Users/zhangxiaodong10/IdeaProjects/Jump-in-a-file");
-//        projectTree.setPath(args[0]);
-        projectTree.initialize();
+//        collectIndex(args[0]);
+        //initialization
+        project.setPath("/Users/zhangxiaodong10/IdeaProjects/Jump-in-a-file");
+        project.initialize();
+
+        //collect indexes in a total project
+        project.collectIndex();
+
+        //map indexes
     }
 }

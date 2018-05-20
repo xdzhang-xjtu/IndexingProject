@@ -4,12 +4,29 @@ import indexer.dataunit.table.Table;
 
 public class File implements Node {
 
-    public String name;
-    public String url; //relative to the root of project
+    private String name;
+    private String url; //relative to the root of project
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public File(String name, String url) {
         this.name = name;
         this.url = url;
+
     }
 
     private Table classTable;
@@ -40,5 +57,13 @@ public class File implements Node {
 
     public void setMethodTable(Table methodTable) {
         this.methodTable = methodTable;
+    }
+
+    @Override
+    public String toString() {
+        return "File{" +
+                "name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                '}';
     }
 }
