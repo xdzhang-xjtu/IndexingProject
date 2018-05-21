@@ -1,76 +1,77 @@
 package indexer.query;
 
+import indexer.Indexing;
 import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
 import indexer.dataunit.node.DirNode;
 import indexer.dataunit.node.Node;
 
+import java.util.Map;
 import java.util.Vector;
 
 public class Query {
-    private String name;
-    private String className;
-    private Vector<String> imports;
+    private String methodName;
+    private String declaringClassName;
+    private String absolutePath;
+    private Vector<String> importsList;
 
-    private Vector<Location> queryResult;
 
-    public Query(){
-        this.name = "";
-        this.className = "";
-        this.imports = new Vector<>();
-    }
-    public  void setQueryScope(String name, String declaringClassName, Vector<String> imports) {
-        this.name = name;
-        this.className = declaringClassName;
-        this.imports = imports;
-    }
+    public Vector<Location> queryResult;
 
-    public String getName() {
-        return name;
+    public Query() {
+        this.methodName = "";
+        this.declaringClassName = "";
+        this.absolutePath = "";
+        this.importsList = new Vector<>();
+        this.queryResult = new Vector<>();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setQueryScope(String methodName, String declaringClassName, String absolutePath, Vector<String> importsList) {
+        this.methodName = methodName;
+        this.declaringClassName = declaringClassName;
+        this.absolutePath = absolutePath;
+        this.importsList = importsList;
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
-    public Vector<String> getImports() {
-        return imports;
-    }
-
-    public void setImports(Vector<String> imports) {
-        this.imports = imports;
-    }
-
-    public void customSearch(Node node) {
-
-    }
-
-
-    //without any scope restrict
-    public void search(Node node) {
-        if (node instanceof ClassNode) {
-
-            if (((ClassNode) node).methodTable.containsKey(name)) {
-                queryResult.add(((ClassNode) node).methodTable.get(name));
+    public void brutallySearch() {
+        for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectRoot.entrySet()) {
+            if (classEntry.getValue().getName().equals(declaringClassName)) {
+                for (Map.Entry<String, Location> methodEntry : classEntry.getValue().methodTable.entrySet())
+                    if (methodEntry.getKey().equals(methodName))
+                        queryResult.add(methodEntry.getValue());
             }
-        } else {
-            for (Node subNode : ((DirNode) node).getChild()) {
-                if (subNode instanceof ClassNode) {
-                    if (((ClassNode) subNode).methodTable.containsKey(name)) {
-                        queryResult.add(((ClassNode) subNode).methodTable.get(name));
-                    }
+        }
+    }
+
+    public void search() {
+        if (declaringClassName == "" && absolutePath == "" && importsList.isEmpty())
+            System.out.println("No restrict for the search scope!");
+
+        //firstly, in the same file and same class
+        if (Indexing.project.projectRoot.containsKey(absolutePath)) {
+            ClassNode classNode = Indexing.project.projectRoot.get(absolutePath);
+            if (declaringClassName.equals(classNode.getName())) {
+                //search in its method table
+                if (classNode.methodTable.containsKey(methodName)) {
+                    queryResult.add(classNode.methodTable.get(methodName));
+                    // in fact, we should exit the method here. However, for validating we continue searching
+                    return;
                 } else {
-                    search(subNode);
+                    System.out.println("There is an exception the code! Let's Check it.....");
+                    System.exit(0);
                 }
-            }
+            }// then goto a bigger scope
+        } else {
+            System.out.println("There are something wrong! Let's Check it.....");
+            System.exit(0);
+        }
+
+        //secondly,
+        for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectRoot.entrySet()) {
+            System.out.println("#Class File " + classEntry.getKey() + "has Method Declarations: ");
+            ClassNode classNode = classEntry.getValue();
+            for (Map.Entry<String, Location> methodEntry : classNode.methodTable.entrySet())
+                System.out.println(methodEntry.getKey() + " at Line" + methodEntry.getValue().lineNumber);
         }
     }
 }

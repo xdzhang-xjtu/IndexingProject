@@ -14,12 +14,10 @@ import java.util.Vector;
 public class MethodReferenceVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
     ClassNode classNode;
-    Query query;
 
     public MethodReferenceVisitor(CompilationUnit compilationUnit, ClassNode classNode) {
         this.compilationUnit = compilationUnit;
         this.classNode = classNode;
-        this.query = new Query();
     }
 
     public void printToConsole(String name, int lineNumber, Vector<Location> result) {
@@ -35,19 +33,19 @@ public class MethodReferenceVisitor extends ASTVisitor {
 
     public boolean visit(MethodInvocation node) {
         SimpleName name = node.getName();
+//        System.out.println(name.getIdentifier());
+        if (node.resolveMethodBinding()==null)
+            System.exit(0);
         String declaringClassName = node.resolveMethodBinding().getDeclaringClass().getName();
-        Vector<Location> result = new Vector<>();
         //customize the query, by obtaining some info from CompilationUnit and I*Bindings
         //Todo: customize the query
         Query query = new Query();
-        query.setQueryScope(name.getIdentifier(),declaringClassName, classNode.importTable);
-        query.search(Indexing.project.projectRoot);
-
-        //without any scope restrict
-//        Search(Indexing.project.projectRoot, name.getIdentifier(), result);
+        query.setQueryScope(name.getIdentifier(), declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
+//        query.search();
+        query.brutallySearch();
 
         //Here, we also can record the data.
-        printToConsole(name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()), result);
+        printToConsole(name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
         //
         return true;
     }

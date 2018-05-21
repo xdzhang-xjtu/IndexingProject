@@ -9,6 +9,18 @@ public class ClassNode implements Node {
     private String name;
     private String url;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -23,10 +35,11 @@ public class ClassNode implements Node {
         return absolutePath;
     }
 
-    public ClassNode(String name, String url, String absolutePath) {
+    public ClassNode(String name, String absolutePath) {
         this.name = name;
-        this.url = url;
+//        this.url = url;
         this.absolutePath = absolutePath;
+
         this.methodTable = new HashMap<>();
         this.classTable = new HashMap<>();
         this.definitionTable = new HashMap<>();

@@ -1,9 +1,9 @@
 package indexer;
 
-import indexer.project.ProjectTree;
+import indexer.project.Project;
 
 public class Indexing {
-    static public ProjectTree project = new ProjectTree();
+    static public Project project = new Project();
 
     static public void main(String[] args) {
 //        if (args.length == 0){
@@ -20,13 +20,7 @@ public class Indexing {
         project.setPath("/Users/zhangxiaodong10/IdeaProjects/Symbol_Table");
         project.initialize();
 
-        //collect indexes in a total project
-        project.collectIndex();
-
-        //test
-//        project.test();
-
-        //reference indexes
-        project.referenceIndex();
+        project.exploreWithVisitor(project.DEFINITION | project.REFERENCE,
+                project.IMPORT | project.METHOD);
     }
 }

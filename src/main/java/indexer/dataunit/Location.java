@@ -1,8 +1,8 @@
 package indexer.dataunit;
 
 public class Location {
-    int lineNumber;
-    String path;
+    public int lineNumber;
+    public String path;
 
     public Location(int lineNumber, String path) {
         this.lineNumber = lineNumber;
