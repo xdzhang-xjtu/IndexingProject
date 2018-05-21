@@ -1,4 +1,6 @@
 package indexer.visitor.reference;
 
-public class ClassReferenceVisitor {
+import org.eclipse.jdt.core.dom.ASTVisitor;
+
+public class ClassReferenceVisitor extends ASTVisitor {
 }

@@ -1,10 +1,14 @@
 package indexer.dataunit.project;
 
+import indexer.dataunit.Location;
 import indexer.dataunit.node.*;
 import indexer.visitor.definition.*;
+import indexer.visitor.reference.*;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 
@@ -22,7 +26,7 @@ public class ProjectTree {
     private String path;
     private Vector<ASTVisitor> astVisitors;
     /*
-    if path == java file, projectRoot should be a File object; Otherwise a Dir object.
+    if path == java file, projectRoot should be a FileNode object; Otherwise a DirNode object.
      */
     public Node projectRoot;
 
@@ -43,6 +47,41 @@ public class ProjectTree {
 //        exploreByVariableDefVisitor(projectRoot);
     }
 
+    public void referenceIndex() {
+        exploreByMethodRefVisitor(projectRoot);
+    }
+
+    public void test(){
+        testingProjcetRoot(projectRoot);
+    }
+
+    public void testingProjcetRoot(Node node) {
+        if (node instanceof ClassNode) {
+            if (((ClassNode) node).methodTable.isEmpty()){
+                System.out.println("There exists an Empty Table for Java file " + ((ClassNode) node).getUrl());
+                System.exit(0);
+            }
+            for (Entry<String, Location> entry : ((ClassNode) node).methodTable.entrySet())
+                System.out.println(((ClassNode) node).getAbsolutePath()+ "\n Method: " +
+                        entry.getKey() + " at " + entry.getValue());
+            System.out.println("Data is OK!");
+        } else {
+            for (Node subNode : ((DirNode) node).getChild()) {
+                if (subNode instanceof ClassNode) {
+                    if (((ClassNode) subNode).methodTable.isEmpty()){
+                        System.out.println("There exists an Empty Table for Java file " + ((ClassNode) subNode).getUrl());
+                        System.exit(0);
+                    }
+                    for (Entry<String, Location> entry : ((ClassNode) subNode).methodTable.entrySet())
+                        System.out.println(((ClassNode) subNode).getAbsolutePath()+ "\n Method: " +
+                                entry.getKey() + " at " + entry.getValue());
+                    System.out.println("Data is OK!");
+                } else {
+                    testingProjcetRoot(subNode);
+                }
+            }
+        }
+    }
 
     public void exploreByMethodDefVisitor(Node node) {
         if (node instanceof ClassNode) {
@@ -57,6 +96,24 @@ public class ProjectTree {
                     compilationUnit.accept(astVisitor);
                 } else {
                     exploreByMethodDefVisitor(subNode);
+                }
+            }
+        }
+    }
+
+    public void exploreByMethodRefVisitor(Node node) {
+        if (node instanceof ClassNode) {
+            CompilationUnit compilationUnit = buildCompilationUnit(((ClassNode) node).getAbsolutePath());
+            MethodReferenceVisitor astVisitor = new MethodReferenceVisitor(compilationUnit, (ClassNode) node);
+            compilationUnit.accept(astVisitor);
+        } else {
+            for (Node subNode : ((DirNode) node).getChild()) {
+                if (subNode instanceof ClassNode) {
+                    CompilationUnit compilationUnit = buildCompilationUnit(((ClassNode) subNode).getAbsolutePath());
+                    MethodReferenceVisitor astVisitor = new MethodReferenceVisitor(compilationUnit, (ClassNode) subNode);
+                    compilationUnit.accept(astVisitor);
+                } else {
+                    exploreByMethodRefVisitor(subNode);
                 }
             }
         }

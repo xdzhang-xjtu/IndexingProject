@@ -1,21 +1,25 @@
 package indexer.dataunit.node;
 
-import indexer.dataunit.table.Table;
-
+import indexer.dataunit.*;
 import java.util.HashMap;
 
 public class ClassNode implements Node {
 
     private String name;
     private String url;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     private String absolutePath;
 
     public String getAbsolutePath() {
         return absolutePath;
-    }
-
-    public void setAbsolutePath(String absolutePath) {
-        this.absolutePath = absolutePath;
     }
 
     public ClassNode(String name, String url, String absolutePath) {
@@ -27,9 +31,9 @@ public class ClassNode implements Node {
         this.definitionTable = new HashMap<>();
     }
 
-    public HashMap<String, String> methodTable;
-    public HashMap<String, String> classTable;
-    public HashMap<String, String> definitionTable;
+    public HashMap<String, Location> methodTable;
+    public HashMap<String, Location> classTable;
+    public HashMap<String, Location> definitionTable;
 
 
     @Override

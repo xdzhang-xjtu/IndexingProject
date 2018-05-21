@@ -1,6 +1,6 @@
 package indexer.visitor.definition;
 
-import indexer.Indexing;
+import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -19,9 +19,10 @@ public class MethodDefinitionVisitor extends ASTVisitor {
 
     public boolean visit(MethodDeclaration node) {
         SimpleName name = node.getName();
-        String line = String.valueOf(compilationUnit.getLineNumber(name.getStartPosition()));
-        classNode.methodTable.put(name.getIdentifier(), line);
-
+        int line = compilationUnit.getLineNumber(name.getStartPosition());
+        Location location = new Location(line, classNode.getAbsolutePath());
+        classNode.methodTable.put(name.getIdentifier(), location);
         return true;
     }
+
 }

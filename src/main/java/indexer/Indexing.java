@@ -15,14 +15,18 @@ public class Indexing {
 //            return;
 //        }
 
-//        collectIndex(args[0]);
         //initialization
-        project.setPath("/Users/zhangxiaodong10/IdeaProjects/Jump-in-a-file");
+//        project.setPath(args[0]);
+        project.setPath("/Users/zhangxiaodong10/IdeaProjects/Symbol_Table");
         project.initialize();
 
         //collect indexes in a total project
         project.collectIndex();
 
-        //map indexes
+        //test
+//        project.test();
+
+        //reference indexes
+        project.referenceIndex();
     }
 }
