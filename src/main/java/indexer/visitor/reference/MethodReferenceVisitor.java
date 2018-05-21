@@ -3,9 +3,7 @@ package indexer.visitor.reference;
 import indexer.*;
 import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
-import indexer.dataunit.node.DirNode;
-import indexer.dataunit.node.Node;
-import indexer.dataunit.project.ProjectTree;
+import indexer.query.Query;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -16,43 +14,43 @@ import java.util.Vector;
 public class MethodReferenceVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
     ClassNode classNode;
+    Query query;
 
     public MethodReferenceVisitor(CompilationUnit compilationUnit, ClassNode classNode) {
         this.compilationUnit = compilationUnit;
         this.classNode = classNode;
+        this.query = new Query();
     }
 
-    public boolean visit(MethodInvocation node) {
-        SimpleName name = node.getName();
-        Vector<Location> result = new Vector<>();
-        globalSearch(Indexing.project.projectRoot, name.getIdentifier(), result);
+    public void printToConsole(String name, int lineNumber, Vector<Location> result) {
         System.out.println("\n#Invocation of '" + name + "' at line " +
-                compilationUnit.getLineNumber(name.getStartPosition()) + ", its Definition is ");
+                lineNumber + ", its Definition is ");
         if ((result.size() == 0))
             System.out.println("out of this project!");
         else
             for (Location location : result) {
                 System.out.println(location);
             }
+    }
+
+    public boolean visit(MethodInvocation node) {
+        SimpleName name = node.getName();
+        String declaringClassName = node.resolveMethodBinding().getDeclaringClass().getName();
+        Vector<Location> result = new Vector<>();
+        //customize the query, by obtaining some info from CompilationUnit and I*Bindings
+        //Todo: customize the query
+        Query query = new Query();
+        query.setQueryScope(name.getIdentifier(),declaringClassName, classNode.importTable);
+        query.search(Indexing.project.projectRoot);
+
+        //without any scope restrict
+//        Search(Indexing.project.projectRoot, name.getIdentifier(), result);
+
+        //Here, we also can record the data.
+        printToConsole(name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()), result);
+        //
         return true;
     }
 
-    public void globalSearch(Node node, String name, Vector<Location> result) {
-        if (node instanceof ClassNode) {
 
-            if (((ClassNode) node).methodTable.containsKey(name)) {
-                result.add(((ClassNode) node).methodTable.get(name));
-            }
-        } else {
-            for (Node subNode : ((DirNode) node).getChild()) {
-                if (subNode instanceof ClassNode) {
-                    if (((ClassNode) subNode).methodTable.containsKey(name)) {
-                        result.add(((ClassNode) subNode).methodTable.get(name));
-                    }
-                } else {
-                    globalSearch(subNode, name, result);
-                }
-            }
-        }
-    }
 }

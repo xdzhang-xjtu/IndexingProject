@@ -1,4 +1,4 @@
-package indexer.dataunit.project;
+package indexer.project;
 
 import indexer.dataunit.Location;
 import indexer.dataunit.node.*;
@@ -6,7 +6,6 @@ import indexer.visitor.definition.*;
 import indexer.visitor.reference.*;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Vector;
 import java.util.Map.Entry;
 
@@ -17,7 +16,6 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -42,20 +40,27 @@ public class ProjectTree {
     }
 
     public void collectIndex() {
+        exploreByImportDefVisitor(projectRoot);
         exploreByMethodDefVisitor(projectRoot);
 //        exploreByClassDefVisitor(projectRoot);
 //        exploreByVariableDefVisitor(projectRoot);
     }
 
     public void referenceIndex() {
+
         exploreByMethodRefVisitor(projectRoot);
     }
 
+    //for testing the data in the built project root
     public void test(){
-        testingProjcetRoot(projectRoot);
+        //for testing method table
+        testingMethodTable(projectRoot);
+        //TODO: testing import table
+        //TODO: testing variable table
+        //TODO: testing type table
     }
 
-    public void testingProjcetRoot(Node node) {
+    public void testingMethodTable(Node node) {
         if (node instanceof ClassNode) {
             if (((ClassNode) node).methodTable.isEmpty()){
                 System.out.println("There exists an Empty Table for Java file " + ((ClassNode) node).getUrl());
@@ -77,7 +82,25 @@ public class ProjectTree {
                                 entry.getKey() + " at " + entry.getValue());
                     System.out.println("Data is OK!");
                 } else {
-                    testingProjcetRoot(subNode);
+                    testingMethodTable(subNode);
+                }
+            }
+        }
+    }
+
+    public void exploreByImportDefVisitor(Node node) {
+        if (node instanceof ClassNode) {
+            CompilationUnit compilationUnit = buildCompilationUnit(((ClassNode) node).getAbsolutePath());
+            ImportDefinitionVisitor astVisitor = new ImportDefinitionVisitor((ClassNode) node);
+            compilationUnit.accept(astVisitor);
+        } else {
+            for (Node subNode : ((DirNode) node).getChild()) {
+                if (subNode instanceof ClassNode) {
+                    CompilationUnit compilationUnit = buildCompilationUnit(((ClassNode) subNode).getAbsolutePath());
+                    ImportDefinitionVisitor astVisitor = new ImportDefinitionVisitor((ClassNode) subNode);
+                    compilationUnit.accept(astVisitor);
+                } else {
+                    exploreByImportDefVisitor(subNode);
                 }
             }
         }

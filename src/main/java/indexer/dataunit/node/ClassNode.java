@@ -2,6 +2,7 @@ package indexer.dataunit.node;
 
 import indexer.dataunit.*;
 import java.util.HashMap;
+import java.util.Vector;
 
 public class ClassNode implements Node {
 
@@ -29,11 +30,13 @@ public class ClassNode implements Node {
         this.methodTable = new HashMap<>();
         this.classTable = new HashMap<>();
         this.definitionTable = new HashMap<>();
+        this.importTable = new Vector<>();
     }
 
     public HashMap<String, Location> methodTable;
     public HashMap<String, Location> classTable;
     public HashMap<String, Location> definitionTable;
+    public Vector<String> importTable;
 
 
     @Override

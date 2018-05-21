@@ -1,6 +1,6 @@
 package indexer;
 
-import indexer.dataunit.project.ProjectTree;
+import indexer.project.ProjectTree;
 
 public class Indexing {
     static public ProjectTree project = new ProjectTree();
