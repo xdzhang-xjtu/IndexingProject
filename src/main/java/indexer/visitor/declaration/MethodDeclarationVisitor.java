@@ -1,4 +1,4 @@
-package indexer.visitor.definition;
+package indexer.visitor.declaration;
 
 import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
@@ -8,11 +8,11 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.*;
 
 
-public class MethodDefinitionVisitor extends ASTVisitor {
+public class MethodDeclarationVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
     ClassNode classNode;
 
-    public MethodDefinitionVisitor(CompilationUnit compilationUnit, ClassNode classNode) {
+    public MethodDeclarationVisitor(CompilationUnit compilationUnit, ClassNode classNode) {
         this.compilationUnit = compilationUnit;
         this.classNode = classNode;
     }

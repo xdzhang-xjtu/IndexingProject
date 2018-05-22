@@ -1,16 +1,15 @@
-package indexer.visitor.definition;
+package indexer.visitor.declaration;
 
 import indexer.dataunit.node.ClassNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
 
-public class ClassDefinitionVisitor extends ASTVisitor {
+public class ClassDeclarationVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
     ClassNode classNode;
 
-    public ClassDefinitionVisitor(CompilationUnit compilationUnit, ClassNode classNode) {
+    public ClassDeclarationVisitor(CompilationUnit compilationUnit, ClassNode classNode) {
         this.compilationUnit = compilationUnit;
         this.classNode = classNode;
     }

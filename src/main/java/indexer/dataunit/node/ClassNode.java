@@ -44,12 +44,23 @@ public class ClassNode  {
         this.classTable = new HashMap<>();
         this.definitionTable = new HashMap<>();
         this.importTable = new Vector<>();
+        this.packageStr = "";
     }
 
     public HashMap<String, Location> methodTable;
     public HashMap<String, Location> classTable;
     public HashMap<String, Location> definitionTable;
     public Vector<String> importTable;
+
+    public String getPackageStr() {
+        return packageStr;
+    }
+
+    public void setPackageStr(String packageStr) {
+        this.packageStr = packageStr;
+    }
+
+    private String packageStr;
 
 
     @Override

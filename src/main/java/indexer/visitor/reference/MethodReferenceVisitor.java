@@ -25,23 +25,22 @@ public class MethodReferenceVisitor extends ASTVisitor {
         if ((result.size() == 0))
             System.out.println("out of this project!");
         else
-            for (Location location : result) {
-                System.out.println(location);
-            }
+            System.out.println(result);
     }
 
     public boolean visit(MethodInvocation node) {
         SimpleName name = node.getName();
 //        System.out.println(name.getIdentifier());
-        if (node.resolveMethodBinding()==null)
+        if (node.resolveMethodBinding() == null)
             System.exit(0);
         String declaringClassName = node.resolveMethodBinding().getDeclaringClass().getName();
         //customize the query, by obtaining some info from CompilationUnit and I*Bindings
-        //Todo: customize the query
         Query query = new Query();
-        query.setQueryScope(name.getIdentifier(), declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
+        //require absolute pat , import table, and package name from classNade.
+        query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
+                declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
 //        query.search();
-        query.brutallySearch();
+        query.search();
 
         //Here, we also can record the data.
         printToConsole(name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);

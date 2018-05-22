@@ -2,7 +2,7 @@ package indexer.project;
 
 import indexer.dataunit.Location;
 import indexer.dataunit.node.*;
-import indexer.visitor.definition.*;
+import indexer.visitor.declaration.*;
 import indexer.visitor.reference.*;
 
 import java.io.File;
@@ -65,6 +65,8 @@ public class Project {
     public final int IMPORT = 2;
     public final int TYPE = 4;//include class and interface
     public final int METHOD = 8;
+    public final int PACKAGE = 16;
+
 
     /*
     flag: Def or Ref, type: variable, class, method, etc.
@@ -75,19 +77,25 @@ public class Project {
             CompilationUnit compilationUnit = buildCompilationUnit(classNode.getAbsolutePath());
             if ((flag & DEFINITION) != 0) {
                 if ((type & IMPORT) != 0) {
-                    ImportDefinitionVisitor astVisitor = new ImportDefinitionVisitor(classEntry.getValue());
+                    PackageDeclarationVisitor astVisitor = new PackageDeclarationVisitor(classEntry.getValue());
+                    compilationUnit.accept(astVisitor);
+                }
+                if ((type & PACKAGE) != 0) {
+                    ImportDeclarationVisitor astVisitor = new ImportDeclarationVisitor(classEntry.getValue());
                     compilationUnit.accept(astVisitor);
                 }
                 if ((type & METHOD) != 0) {
-                    MethodDefinitionVisitor astVisitor = new MethodDefinitionVisitor(compilationUnit, classNode);
+                    MethodDeclarationVisitor astVisitor = new MethodDeclarationVisitor(compilationUnit, classNode);
                     compilationUnit.accept(astVisitor);
                 }
                 if ((type & VARIABLE) != 0) {
-                    VariableDefinitionVisitor astVisitor = new VariableDefinitionVisitor(compilationUnit, classNode);
+                    //Not implemented yet
+                    VariableDeclarationVisitor astVisitor = new VariableDeclarationVisitor(compilationUnit, classNode);
                     compilationUnit.accept(astVisitor);
                 }
                 if ((type & TYPE) != 0) {
-                    ClassDefinitionVisitor astVisitor = new ClassDefinitionVisitor(compilationUnit, classNode);
+                    //Not implemented yet
+                    ClassDeclarationVisitor astVisitor = new ClassDeclarationVisitor(compilationUnit, classNode);
                     compilationUnit.accept(astVisitor);
                 }
                 if (type == 0)
@@ -182,7 +190,6 @@ public class Project {
                         buildClassList(subfile);
                     } else {
                         if (subfile.getName().endsWith("java")) {
-//                            System.out.println(subfile.getName() + ";" + subfile.getAbsolutePath());
                             String className = subfile.getName().split("\\.")[0];
                             projectRoot.put(subfile.getAbsolutePath(), new ClassNode(className, subfile.getAbsolutePath()));
                         }
