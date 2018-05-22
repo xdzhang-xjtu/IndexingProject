@@ -3,8 +3,6 @@ package indexer.query;
 import indexer.Indexing;
 import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
-import indexer.dataunit.node.DirNode;
-import indexer.dataunit.node.Node;
 
 import java.util.Map;
 import java.util.Vector;

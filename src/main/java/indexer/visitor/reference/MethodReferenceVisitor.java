@@ -1,6 +1,5 @@
 package indexer.visitor.reference;
 
-import indexer.*;
 import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
 import indexer.query.Query;

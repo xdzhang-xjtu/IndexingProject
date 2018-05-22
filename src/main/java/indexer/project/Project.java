@@ -24,9 +24,6 @@ import org.eclipse.jdt.core.dom.ASTParser;
 public class Project {
     private String path;
     private Vector<ASTVisitor> astVisitors;
-    /*
-    if path == java file, projectRoot should be a FileNode object; Otherwise a DirNode object.
-     */
     public HashMap<String, ClassNode> projectRoot;
 
 

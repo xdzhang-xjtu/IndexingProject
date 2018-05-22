@@ -4,7 +4,7 @@ import indexer.dataunit.*;
 import java.util.HashMap;
 import java.util.Vector;
 
-public class ClassNode implements Node {
+public class ClassNode  {
 
     private String name;
     private String url;
