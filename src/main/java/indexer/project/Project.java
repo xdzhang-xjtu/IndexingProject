@@ -20,12 +20,13 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 
 public class Project {
-    private String path;
-    public HashMap<String, ClassNode> projectRoot;
+    private String projectPath;
+    private String sourcePath;
+    public HashMap<String, ClassNode> projectData;
 
 
     public Project() {
-        this.projectRoot = new HashMap<>();
+        this.projectData = new HashMap<>();
     }
 
     //for testing the data in the built project root
@@ -38,22 +39,22 @@ public class Project {
     }
 
     public void testingMethodTable() {
-        if (projectRoot.isEmpty()) {
-            System.out.println("ERROR: No Java File in Project " + path);
+        if (projectData.isEmpty()) {
+            System.err.println("ERROR: No Java File in Project " + projectPath);
             System.exit(0);
         }
-        for (Entry<String, ClassNode> classEntry : projectRoot.entrySet()) {
-            System.out.println("#Class File " + classEntry.getKey() + "\nMethod Declarations: ");
+        for (Entry<String, ClassNode> classEntry : projectData.entrySet()) {
+            System.err.println("#Class File " + classEntry.getKey() + "\nMethod Declarations: ");
             ClassNode classNode = classEntry.getValue();
             if (!Indexing.DEBUG)
                 if (classNode.methodTable.isEmpty()) {
-                    System.out.println("ERROR: Method Table is empty!");
+                    System.err.println("ERROR: Method Table is empty!");
                     System.exit(0);
                 }
             for (Entry<String, Location> methodEntry : classNode.methodTable.entrySet())
-                System.out.println(methodEntry.getKey() + " at Line " + methodEntry.getValue().lineNumber);
+                System.err.println(methodEntry.getKey() + " at Line " + methodEntry.getValue().lineNumber);
         }
-        System.out.println("Data is OK!");
+        System.err.println("Data is OK!");
     }
 
     public final int VARIABLE = 1;
@@ -66,10 +67,10 @@ public class Project {
     flag: Def or Ref, type: variable, class, method, etc.
      */
     public void applyDeclarationVisitor(int type) {
-        for (Entry<String, ClassNode> classEntry : projectRoot.entrySet()) {
+        for (Entry<String, ClassNode> classEntry : projectData.entrySet()) {
             ClassNode classNode = classEntry.getValue();
             CompilationUnit compilationUnit = buildCompilationUnit(classNode.getAbsolutePath());
-//            System.out.println("xxxxxxxx" + classNode.getAbsolutePath());
+//            System.err.println("xxxxxxxx" + classNode.getAbsolutePath());
             if ((type & IMPORT) != 0) {
                 PackageDeclarationVisitor astVisitor = new PackageDeclarationVisitor(classEntry.getValue());
                 compilationUnit.accept(astVisitor);
@@ -93,17 +94,17 @@ public class Project {
                 compilationUnit.accept(astVisitor);
             }
             if (type == 0) {
-                System.out.println("ERROR: in applyDeclarationVisitor");
+                System.err.println("ERROR: IN method applyDeclarationVisitor");
                 System.exit(0);
             }
         }
     }
 
     public void applyReferenceVisitor(int type) {
-        for (Entry<String, ClassNode> classEntry : projectRoot.entrySet()) {
+        for (Entry<String, ClassNode> classEntry : projectData.entrySet()) {
             ClassNode classNode = classEntry.getValue();
             CompilationUnit compilationUnit = buildCompilationUnit(classNode.getAbsolutePath());
-//            System.out.println("xxxxxxxx" + classNode.getAbsolutePath());
+//            System.err.println("xxxxxxxx" + classNode.getAbsolutePath());
             if ((type & IMPORT) != 0) {
                 //do nothing
             }
@@ -113,11 +114,10 @@ public class Project {
             }
             if ((type & VARIABLE) != 0) {
             }
-
             if ((type & TYPE) != 0) {
             }
             if (type == 0) {
-                System.out.println("ERROR: in applyReferenceVisitor");
+                System.err.println("ERROR: IN method applyReferenceVisitor");
                 System.exit(0);
             }
         }
@@ -130,7 +130,7 @@ public class Project {
         try {
             str = FileUtils.readFileToString(file, "UTF-8");
         } catch (IOException e) {
-            System.out.println(e);
+            System.err.println(e);
         }
 
         ASTParser parser = ASTParser.newParser(AST.JLS8);
@@ -140,34 +140,34 @@ public class Project {
         Map options = JavaCore.getOptions();
         parser.setCompilerOptions(options);
         parser.setUnitName(file.getName());
-        //must be added, otherwise, the bindings can't be resolved.
-        String[] sources = {"/Users/zhangxiaodong10/IdeaProjects/Symbol_Table/src/"};
+
+        //should automatically extract the source paths from project path.
+        //in the future work, need to implement it.
+        String[] sources = {sourcePath};
+        //should automatically extract librt.jar from system
         String[] classpath = {"/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home/jre/librt.jar"};
+        //must be added, otherwise, the bindings can't be resolved.
         parser.setEnvironment(classpath, sources, new String[]{"UTF-8"}, true);
         parser.setSource(str.toCharArray());
         return (CompilationUnit) parser.createAST(null);
     }
 
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
+    public void setPaths(String projectPath, String sourcePath) {
+        this.projectPath = projectPath;
+        this.sourcePath = sourcePath;
     }
 
     public boolean initialize() {
-        File file = new File(path);
+        File file = new File(projectPath);
         if (!file.exists()) {
-            System.out.println("The project does not exist!");
+            System.err.println("The project does not exist!");
             return false;
         }
         if (file.isDirectory()) {
-            buildClassList(new File(path));
+            buildClassList(new File(projectPath));
         } else {
-            String className = file.getName().split(".")[0];
-            projectRoot.put(file.getAbsolutePath(), new ClassNode(className, path));
+            String className = file.getName().split("\\.")[0];
+            projectData.put(file.getAbsolutePath(), new ClassNode(className, file.getName(), projectPath));
         }
         return true;
     }
@@ -179,7 +179,7 @@ public class Project {
         if (file.exists()) {
             File[] files = file.listFiles();
             if (files.length == 0) {
-                System.out.println(file.getName() + " is empty!");
+                System.err.println(file.getName() + " is empty!");
             } else {
                 for (File subfile : files) {
                     if (subfile.getName().startsWith(".")) {//filter out the .* dirs
@@ -190,13 +190,15 @@ public class Project {
                     } else {
                         if (subfile.getName().endsWith("java")) {
                             String className = subfile.getName().split("\\.")[0];
-                            projectRoot.put(subfile.getAbsolutePath(), new ClassNode(className, subfile.getAbsolutePath()));
+                            String abusolutePath = subfile.getAbsolutePath();
+                            projectData.put(subfile.getAbsolutePath(), new ClassNode(className,
+                                    abusolutePath.substring(projectPath.length()), subfile.getAbsolutePath()));
                         }
                     }
                 }
             }
         } else {
-            System.out.println(file.getName() + " does not exist!");
+            System.err.println(file.getName() + " does not exist!");
         }
     }
 

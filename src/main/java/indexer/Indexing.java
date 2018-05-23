@@ -3,6 +3,8 @@ package indexer;
 import indexer.project.Project;
 import indexer.dataunit.Statistics;
 
+import java.io.File;
+
 public class Indexing {
     final static public boolean DEBUG = true;
     static public Project project = new Project();
@@ -11,19 +13,34 @@ public class Indexing {
     static public void main(String[] args) {
         statistics.setStartTime(System.currentTimeMillis());
         if (DEBUG) {
+            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/javasyntax",
+                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
+//            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
+//                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
 //            project.setPath("/Users/zhangxiaodong10/IdeaProjects/Symbol_Table");
-            project.setPath("/Users/zhangxiaodong10/eclipse-workspace/Test");
+//            project.setPath("/Users/zhangxiaodong10/eclipse-workspace/Test");
 
         } else {
-            if (args.length == 0) {
-                System.out.println("Please input a project path or a java class!");
+            if (args.length < 2) {
+                System.err.println("The args are not enough! Please input a java project and its source dir!");
                 return;
-            }
-            if (args.length >= 2) {
-                System.out.println("Too many parameters!");
+            } else if (args.length > 2) {
+                System.err.println("Too many parameters!");
                 return;
+            }else {
+                File projectPath = new File(args[0]);
+                if (!projectPath.exists()) {
+                    System.err.println("The project path is wrong!");
+                    return;
+                }
+                File source = new File(args[1]);
+                if (!source.exists()) {
+                    System.err.println("The source path is wrong!");
+                    return;
+                }
+
+                project.setPaths(args[0], args[1]);
             }
-            project.setPath(args[0]);
         }
 
         //initialization
@@ -37,7 +54,7 @@ public class Indexing {
         project.applyReferenceVisitor(project.METHOD);
 
         statistics.setEndTime(System.currentTimeMillis());
-        System.out.println(statistics);
+        System.err.println(statistics);
 
     }
 }

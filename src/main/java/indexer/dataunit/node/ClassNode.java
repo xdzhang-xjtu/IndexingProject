@@ -1,12 +1,13 @@
 package indexer.dataunit.node;
 
 import indexer.dataunit.*;
+
 import java.util.HashMap;
 import java.util.Vector;
 
-public class ClassNode  {
+public class ClassNode {
 
-    private String name;
+    private String name;//class name without .java suffix
     private String url;
 
     public String getName() {
@@ -35,9 +36,9 @@ public class ClassNode  {
         return absolutePath;
     }
 
-    public ClassNode(String name, String absolutePath) {
+    public ClassNode(String name, String url, String absolutePath) {
         this.name = name;
-//        this.url = url;
+        this.url = url;
         this.absolutePath = absolutePath;
 
         this.methodTable = new HashMap<>();

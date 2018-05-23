@@ -21,9 +21,9 @@ public class MethodDeclarationVisitor extends ASTVisitor {
     public boolean visit(MethodDeclaration node) {
         SimpleName name = node.getName();
         int line = compilationUnit.getLineNumber(name.getStartPosition());
-        Location location = new Location(line, classNode.getAbsolutePath());
+        Location location = new Location(line, classNode.getUrl());
         if (!Indexing.DEBUG)
-            System.out.println(classNode.getName() + " : " + name.getIdentifier() + " @ " + location);
+            System.err.println(classNode.getName() + " : " + name.getIdentifier() + " @ " + location);
         classNode.methodTable.put(name.getIdentifier(), location);
         return true;
     }

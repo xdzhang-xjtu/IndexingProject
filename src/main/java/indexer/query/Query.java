@@ -34,18 +34,24 @@ public class Query {
     }
 
     public void brutallySearch() {
-        for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectRoot.entrySet()) {
-            if (!Indexing.DEBUG)
-                System.out.println(declaringClassName + "?" + classEntry.getValue().getName());
+        for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
             if (declaringClassName.equals(classEntry.getValue().getName())) {
+                if (Indexing.DEBUG)
+                    System.err.println(declaringClassName + "==" + classEntry.getValue().getName());
                 if (!Indexing.DEBUG) {
-                    System.out.println(declaringClassName + "=" + classEntry.getValue().getName());
+                    System.err.println(declaringClassName + "=" + classEntry.getValue().getName());
                     for (Map.Entry<String, Location> methodEntry : classEntry.getValue().methodTable.entrySet())
-                        System.out.println("Method: " + methodEntry.getKey());
+                        System.err.println("Method: " + methodEntry.getKey());
                 }
                 if (classEntry.getValue().methodTable.containsKey(methodName)) {
+                    System.err.println("Method: " + methodName);
+
                     Location location = classEntry.getValue().methodTable.get(methodName);
+                    location.scope = "GLOBAL";
                     queryResult.add(location);
+
+                    System.err.println(location);
+//                    System.exit(0);
                 }
             }
         }
@@ -54,7 +60,7 @@ public class Query {
     public void search() {
         if (Indexing.DEBUG) {
             if (declaringClassName == "" && absolutePath == "" && importsList.isEmpty())
-                System.out.println("No restrict for the search scope!");
+                System.err.println("No restrict for the search scope!");
         }
 
         boolean classFlag = false;
@@ -62,32 +68,42 @@ public class Query {
         boolean importFlag = false;
 
         //first, in one same class
-        if (Indexing.project.projectRoot.containsKey(absolutePath)) {
-            ClassNode classNode = Indexing.project.projectRoot.get(absolutePath);
+        if (Indexing.project.projectData.containsKey(absolutePath)) {
+            ClassNode classNode = Indexing.project.projectData.get(absolutePath);
+            if (!Indexing.DEBUG)
+                System.err.println("Query.serach() " + declaringClassName + " ? " + classNode.getName());
             if (declaringClassName.equals(classNode.getName())) {
                 //search in its method table
                 if (classNode.methodTable.containsKey(methodName)) {
-                    queryResult.add(classNode.methodTable.get(methodName));
+                    Location loc = classNode.methodTable.get(methodName);
+                    loc.scope = "CLASS";
+                    queryResult.add(loc);
                     // in fact, we should exit the method here. However, for validating we continue searching
                     classFlag = true;//do not continue the following search
                 } else {
-                    System.out.println("ERROR: There is an exception the code! Let's Check it.....");
+                    System.err.println("ERROR: There is an exception the code! Let's Check it.....");
                     System.exit(0);
                 }
-            }// then goto a bigger scope
+            } else {
+                if (!Indexing.DEBUG) {//classFlag = false
+                    System.err.println("Goto a bigger scope from class to package");
+                }
+            }
         } else {
-            System.out.println("ERROR: There are something wrong! Let's Check it.....");
+            System.err.println("ERROR: There are something wrong! Let's Check it.....");
             System.exit(0);
         }
 
         //second, in one same package
         if (classFlag == false) {
-            for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectRoot.entrySet()) {
+            for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
                 ClassNode classNode = classEntry.getValue();
                 if (selfPackage.equals(classNode.getPackageStr())) {//same package
                     if (declaringClassName.equals(classNode.getName()))//accuracy class
                         if (classNode.methodTable.containsKey(methodName)) {
-                            queryResult.add(classNode.methodTable.get(methodName));
+                            Location loc = classNode.methodTable.get(methodName);
+                            loc.scope = "PACKAGE";
+                            queryResult.add(loc);
                             packageFlag = true;
                         }// otherwise, goto a bigger scope
                 }
@@ -99,22 +115,35 @@ public class Query {
             //determine the candidate packages
             Vector<String> waitingList = new Vector<>();
             for (String entry : importsList) {
-                if (entry.endsWith(declaringClassName) || entry.endsWith("*")) {
+                System.err.println("Import name " + entry);
+                if (!Indexing.DEBUG) {
+                    System.err.println("Declarating Class name: " + declaringClassName);
+                }
+                if (entry.endsWith("." + declaringClassName) || entry.endsWith(".*")) {
                     String packageName = entry.substring(0, entry.lastIndexOf("."));
                     if (!Indexing.DEBUG) {
-                        System.out.println(entry + " package name : " + packageName);
+                        System.err.println(entry + " package name : " + packageName);
                     }
                     waitingList.add(packageName);
+                }
+
+
+                if (entry.endsWith(".*")) {
+                    String packageName = entry.substring(0, entry.lastIndexOf("."));
+                    System.err.println("Import" + entry + " package name : " + packageName);
+                    System.exit(0);
                 }
             }
 
             for (String pEntry : waitingList) {
-                for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectRoot.entrySet()) {
+                for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
                     if (pEntry.equals(classEntry.getValue().getPackageStr())) {//same package
                         if (declaringClassName.equals(classEntry.getValue().getName()))//same class
                             if (classEntry.getValue().methodTable.containsKey(methodName)) {
                                 //maybe contains multiple locations
-                                queryResult.add(classEntry.getValue().methodTable.get(methodName));
+                                Location loc=classEntry.getValue().methodTable.get(methodName);
+                                loc.scope = "IMPORTS";
+                                queryResult.add(loc);
                                 importFlag = true;
                             }
                     }
@@ -124,6 +153,9 @@ public class Query {
 
         //4th, in the total project
         if (classFlag == false && packageFlag == false && importFlag == false) {
+            /*if the above three steps are sound,
+            then we can conclude that this method is out of the project!
+             */
             brutallySearch();
         }
     }

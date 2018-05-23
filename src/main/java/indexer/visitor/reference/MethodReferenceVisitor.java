@@ -21,40 +21,44 @@ public class MethodReferenceVisitor extends ASTVisitor {
     }
 
     public void printInfoToConsole(String path, String name, int lineNumber, Vector<Location> result) {
-        System.out.print("文件" + path + " # ");
-        System.out.print("行" + lineNumber + " # ");
-        System.out.print("方法调用" + name + " # ");
+        System.err.print("文件" + path + " # ");
+        System.err.print("行" + lineNumber + " # ");
+        System.err.print("调用" + name + " # ");
 
         if ((result.size() == 0)) {
             Indexing.statistics.EXTERNAL_CALL++;
-            System.out.println("外部函数");
-        }
-        else {
+            System.err.println("外部函数");
+        } else {
             Indexing.statistics.INTERNAL_CALL++;
-            System.out.print("@");
-            if (result.size()>2){
-                Indexing.statistics.EXCEPTION_MULTI_DEFS ++;
+            System.err.print("定义@");
+            System.err.println(result);
+
+            if (result.size() >= 2) {
+                if (Indexing.DEBUG) {
+                    System.err.print(" ERROR: Multiple Defs!");
+                    System.exit(0);
+                }
+                Indexing.statistics.EXCEPTION_MULTI_DEFS++;
             }
-            System.out.println(result);
         }
     }
 
     public void printErrorToConsole(String path, String name, int lineNumber) {
-        System.out.print("文件" + path + " # ");
-        System.out.print("行" + lineNumber + " # ");
-        System.out.print("方法调用" + name + " # ");
-        System.out.println("**ERROR: Null Bindings!");
+        System.err.print("文件" + path + " # ");
+        System.err.print("行" + lineNumber + " # ");
+        System.err.print("调用" + name + " # ");
+        System.err.println("**ERROR: Null Bindings!");
     }
 
     public boolean visit(MethodInvocation node) {
         Indexing.statistics.CALL++;
         SimpleName name = node.getName();
         if (!Indexing.DEBUG)
-            System.out.println(name.getIdentifier());
+            System.err.println(name.getIdentifier());
         if (node.resolveMethodBinding() == null) {
             Indexing.statistics.EXCEPTION_NULL_BINGDING++;
             if (Indexing.DEBUG) {
-                printErrorToConsole(classNode.getAbsolutePath(), name.getIdentifier(),
+                printErrorToConsole(classNode.getUrl(), name.getIdentifier(),
                         compilationUnit.getLineNumber(name.getStartPosition()));
 //                System.exit(0);
             }
@@ -66,14 +70,14 @@ public class MethodReferenceVisitor extends ASTVisitor {
             query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
                     declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
 
-            if (Indexing.DEBUG)
+            if (!Indexing.DEBUG)
                 query.brutallySearch();
             else
                 query.search();
 
             //Here, we also can record the data.
             if (Indexing.DEBUG)
-                printInfoToConsole(classNode.getAbsolutePath(), name.getIdentifier(),
+                printInfoToConsole(classNode.getUrl(), name.getIdentifier(),
                         compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
         }
         return true;
