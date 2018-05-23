@@ -11,26 +11,35 @@ public class Query {
     private String methodName;
     private String selfPackage;
     private String declaringClassName;
-    private String absolutePath;
+    private String selfAbsolutePath;
     private Vector<String> importsList;
+    private String destPackage;
 
 
     public Vector<Location> queryResult;
 
     public Query() {
-        this.methodName = "";
-        this.selfPackage = "";
-        this.declaringClassName = "";
-        this.absolutePath = "";
+        this.methodName = "-";
+        this.selfPackage = "-";
+        this.declaringClassName = "-";
+        this.selfAbsolutePath = "-";
         this.queryResult = new Vector<>();
+        this.destPackage = "-";
     }
 
-    public void setQueryScope(String methodName, String selfPackage, String declaringClassName, String absolutePath, Vector<String> importsList) {
+    public void setQueryScope(String methodName, String selfPackage, String declaringClassName,
+                              String selfAbsolutePath, Vector<String> importsList) {
         this.methodName = methodName;
         this.selfPackage = selfPackage;
         this.declaringClassName = declaringClassName;
-        this.absolutePath = absolutePath;
+        this.selfAbsolutePath = selfAbsolutePath;
         this.importsList = importsList;
+    }
+
+    public void setQueryScope(String methodName, String destPackage, String declaringClassName) {
+        this.methodName = methodName;
+        this.destPackage = destPackage;
+        this.declaringClassName = declaringClassName;
     }
 
     public void brutallySearch() {
@@ -52,19 +61,42 @@ public class Query {
         }
     }
 
-    public void search() {
-        if (Indexing.DEBUG) {
-            if (declaringClassName == "" && absolutePath == "" && importsList.isEmpty())
-                System.err.println("No restrict for the search scope!");
+    public void search_v2() {
+        boolean dest_package = false;
+        for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
+            ClassNode classNode = classEntry.getValue();
+            if (destPackage.equals(classNode.getPackageStr()) &&
+                    declaringClassName.equals(classNode.getName())) {
+                if (classNode.methodTable.containsKey(methodName)) {
+                    Location loc = classNode.methodTable.get(methodName);
+                    loc.scope = "DEST_PACKAGE";
+                    queryResult.add(loc);
+                    dest_package = true;
+                }else {
+                    System.err.println("ERROR: There is no a method.");
+                    System.exit(0);
+                }
+            }
         }
+
+        //2nd, in the total project
+        if (dest_package == false) {
+            /*if the above three steps are sound,
+            then we can conclude that this method is out of the project!
+             */
+            brutallySearch();
+        }
+    }
+
+    public void search() {
 
         boolean classFlag = false;
         boolean packageFlag = false;
         boolean importFlag = false;
 
         //first, in one same class
-        if (Indexing.project.projectData.containsKey(absolutePath)) {
-            ClassNode classNode = Indexing.project.projectData.get(absolutePath);
+        if (Indexing.project.projectData.containsKey(selfAbsolutePath)) {
+            ClassNode classNode = Indexing.project.projectData.get(selfAbsolutePath);
             if (!Indexing.DEBUG)
                 System.err.println("Query.serach() " + declaringClassName + " ? " + classNode.getName());
             if (declaringClassName.equals(classNode.getName())) {
@@ -128,7 +160,7 @@ public class Query {
                         if (declaringClassName.equals(classEntry.getValue().getName()))//same class
                             if (classEntry.getValue().methodTable.containsKey(methodName)) {
                                 //maybe contains multiple locations
-                                Location loc=classEntry.getValue().methodTable.get(methodName);
+                                Location loc = classEntry.getValue().methodTable.get(methodName);
                                 loc.scope = "IMPORTS";
                                 queryResult.add(loc);
                                 importFlag = true;

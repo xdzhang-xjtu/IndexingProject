@@ -7,6 +7,24 @@ import java.io.File;
 
 public class Indexing {
     final static public boolean DEBUG = true;
+    final static public  String[] externalLibs = {
+            "java.applet",
+            "java.awt",
+            "java.beans",
+            "java.io",
+            "java.lang",
+            "java.math",
+            "java.net",
+            "java.rmi",
+            "java.security",
+            "java.sql",
+            "java.text",
+            "java.util",
+            "javax.accessibility",
+            "javax.naming",
+            "javax.rmi",
+            "javax.sound",
+            "javax.swing"};
     static public Project project = new Project();
     static public Statistics statistics = new Statistics();
 
@@ -17,8 +35,8 @@ public class Indexing {
 //                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
 //            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
 //                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
-            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/IndexingProject",
-                    "/Users/zhangxiaodong10/IdeaProjects/IndexingProject/src/main/java");
+            project.setPaths("/Users/xdzhang/IdeaProjects/IndexingProject",
+                    "/Users/xdzhang/IdeaProjects/IndexingProject/src/main/java");
 
         } else {
             if (args.length < 2) {

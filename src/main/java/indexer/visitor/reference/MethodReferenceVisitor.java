@@ -17,14 +17,14 @@ public class MethodReferenceVisitor extends ASTVisitor {
         this.classNode = classNode;
     }
 
-    public void printInfoToConsole(String path, String name, int lineNumber, Vector<Location> result) {
+    public void printCallRelation(String path, String name, int lineNumber, Vector<Location> result) {
         System.err.print("文件" + path + " # ");
         System.err.print("行" + lineNumber + " # ");
         System.err.print("调用" + name + " # ");
 
         if ((result.size() == 0)) {
             Indexing.statistics.EXTERNAL_CALL++;
-            System.err.println("外部函数");
+            System.err.println("调用外部函数");
         } else {
             Indexing.statistics.INTERNAL_CALL++;
             System.err.print("定义@");
@@ -40,11 +40,18 @@ public class MethodReferenceVisitor extends ASTVisitor {
         }
     }
 
-    public void printErrorToConsole(String path, String name, int lineNumber) {
+    public void printException(String path, String name, int lineNumber) {
         System.err.print("文件" + path + " # ");
         System.err.print("行" + lineNumber + " # ");
         System.err.print("调用" + name + " # ");
         System.err.println("**ERROR: Null Bindings!");
+    }
+
+    public void printExternalMethod(String path, String name, int lineNumber) {
+        System.err.print("文件" + path + " # ");
+        System.err.print("行" + lineNumber + " # ");
+        System.err.print("调用" + name + " # ");
+        System.err.println("调用外部函数");
     }
 
     public boolean visit(MethodInvocation node) {
@@ -55,35 +62,57 @@ public class MethodReferenceVisitor extends ASTVisitor {
         if (node.resolveMethodBinding() == null) {
             Indexing.statistics.EXCEPTION_NULL_BINGDING++;
             if (Indexing.DEBUG) {
-                printErrorToConsole(classNode.getUrl(), name.getIdentifier(),
+                printException(classNode.getUrl(), name.getIdentifier(),
                         compilationUnit.getLineNumber(name.getStartPosition()));
 //                System.exit(0);
             }
         } else {
             ITypeBinding iTypeBinding = node.resolveMethodBinding().getDeclaringClass();
-            if (iTypeBinding.getPackage()==null){
-                System.err.println("Cannot resolve the package of decalaring class");
-                System.exit(0);
+            String destPackage;
+            if (iTypeBinding.getPackage() == null) {
+                if (!Indexing.DEBUG) {
+                    System.err.println("Cannot resolve the package of decalaring class");
+                    System.exit(0);
+                }
+                destPackage = "";// thus, perform no restrict
             }else {
-                System.err.println("The resolved package is " + iTypeBinding.getPackage().getName());
+                destPackage = iTypeBinding.getPackage().getName();
             }
-            String declaringClassName = iTypeBinding.getName();
-            //customize the query, by obtaining some info from CompilationUnit and I*Bindings
-            Query query = new Query();
-            //require absolute pat , import table, and package name from classNade.
-            query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
-                    declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
 
-            if (!Indexing.DEBUG)
-                query.brutallySearch();
-            else
-                query.search();
+            if (isExternalMethod(destPackage)){
+                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
+                        compilationUnit.getLineNumber(name.getStartPosition()));
+            }else {
+                String declaringClassName = iTypeBinding.getName();
+                //customize the query, by obtaining some info from CompilationUnit and I*Bindings
+                Query query = new Query();
+                //require absolute pat , import table, and package name from classNade.
+//            query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
+//                    declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
+                query.setQueryScope(name.getIdentifier(), destPackage, declaringClassName);
 
-            //Here, we also can record the data.
-            if (Indexing.DEBUG)
-                printInfoToConsole(classNode.getUrl(), name.getIdentifier(),
-                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+                if (!Indexing.DEBUG)
+                    query.brutallySearch();
+                else
+                    query.search_v2();
+                //Here, we also can record the data.
+                if (Indexing.DEBUG)
+                    printCallRelation(classNode.getUrl(), name.getIdentifier(),
+                            compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+            }
+
+
+
+
         }
         return true;
+    }
+
+    private boolean isExternalMethod(String destPackage){
+        for (String str : Indexing.externalLibs){
+            if (str.equals(destPackage))
+                return true;
+        }
+        return false;
     }
 }
