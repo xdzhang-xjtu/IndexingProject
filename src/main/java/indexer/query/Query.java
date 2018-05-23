@@ -35,10 +35,18 @@ public class Query {
 
     public void brutallySearch() {
         for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectRoot.entrySet()) {
-            if (classEntry.getValue().getName().equals(declaringClassName)) {
-                for (Map.Entry<String, Location> methodEntry : classEntry.getValue().methodTable.entrySet())
-                    if (methodEntry.getKey().equals(methodName))
-                        queryResult.add(methodEntry.getValue());
+            if (!Indexing.DEBUG)
+                System.out.println(declaringClassName + "?" + classEntry.getValue().getName());
+            if (declaringClassName.equals(classEntry.getValue().getName())) {
+                if (!Indexing.DEBUG) {
+                    System.out.println(declaringClassName + "=" + classEntry.getValue().getName());
+                    for (Map.Entry<String, Location> methodEntry : classEntry.getValue().methodTable.entrySet())
+                        System.out.println("Method: " + methodEntry.getKey());
+                }
+                if (classEntry.getValue().methodTable.containsKey(methodName)) {
+                    Location location = classEntry.getValue().methodTable.get(methodName);
+                    queryResult.add(location);
+                }
             }
         }
     }
@@ -63,12 +71,12 @@ public class Query {
                     // in fact, we should exit the method here. However, for validating we continue searching
                     classFlag = true;//do not continue the following search
                 } else {
-                    System.out.println("There is an exception the code! Let's Check it.....");
+                    System.out.println("ERROR: There is an exception the code! Let's Check it.....");
                     System.exit(0);
                 }
             }// then goto a bigger scope
         } else {
-            System.out.println("There are something wrong! Let's Check it.....");
+            System.out.println("ERROR: There are something wrong! Let's Check it.....");
             System.exit(0);
         }
 
@@ -93,7 +101,7 @@ public class Query {
             for (String entry : importsList) {
                 if (entry.endsWith(declaringClassName) || entry.endsWith("*")) {
                     String packageName = entry.substring(0, entry.lastIndexOf("."));
-                    if (Indexing.DEBUG) {
+                    if (!Indexing.DEBUG) {
                         System.out.println(entry + " package name : " + packageName);
                     }
                     waitingList.add(packageName);

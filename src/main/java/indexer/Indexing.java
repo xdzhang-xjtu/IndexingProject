@@ -8,7 +8,9 @@ public class Indexing {
 
     static public void main(String[] args) {
         if (DEBUG) {
-            project.setPath("/Users/zhangxiaodong10/IdeaProjects/Symbol_Table");
+//            project.setPath("/Users/zhangxiaodong10/IdeaProjects/Symbol_Table");
+            project.setPath("/Users/zhangxiaodong10/eclipse-workspace/Test");
+
         } else {
             if (args.length == 0) {
                 System.out.println("Please input a project path or a java class!");
@@ -24,11 +26,11 @@ public class Indexing {
         //initialization
         project.initialize();
 
+        project.applyDeclarationVisitor(project.IMPORT | project.PACKAGE | project.METHOD);
+        project.applyReferenceVisitor(project.METHOD);
+
         if (!DEBUG) {
             project.test();
         }
-
-        project.exploreWithVisitor(project.DEFINITION | project.REFERENCE,
-                project.IMPORT | project.PACKAGE | project.METHOD);
     }
 }

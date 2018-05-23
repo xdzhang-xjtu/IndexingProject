@@ -11,9 +11,6 @@ public class Location {
 
     @Override
     public String toString() {
-        return "Location{" +
-                "lineNumber=" + lineNumber +
-                ", path='" + path + '\'' +
-                '}';
+        return "文件" + path + "#行" + lineNumber;
     }
 }

@@ -1,5 +1,6 @@
 package indexer.visitor.reference;
 
+import indexer.Indexing;
 import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
 import indexer.query.Query;
@@ -19,34 +20,54 @@ public class MethodReferenceVisitor extends ASTVisitor {
         this.classNode = classNode;
     }
 
-    public void printToConsole(String name, int lineNumber, Vector<Location> result) {
-        System.out.println("\n#Invocation of '" + name + "' at line " +
-                lineNumber + ", its Definition is ");
+    public void printInfoToConsole(String path, String name, int lineNumber, Vector<Location> result) {
+        System.out.print("文件" + path + " # ");
+        System.out.print("行" + lineNumber + " # ");
+        System.out.print("方法调用" + name + " # ");
+
         if ((result.size() == 0))
-            System.out.println("out of this project!");
-        else
+            System.out.println("外部函数");
+        else {
+            System.out.print("@");
             System.out.println(result);
+        }
+    }
+
+    public void printErrorToConsole(String path, String name, int lineNumber) {
+        System.out.print("文件" + path + " # ");
+        System.out.print("行" + lineNumber + " # ");
+        System.out.print("方法调用" + name + " # ");
+        System.out.println("**ERROR: Null Bindings!");
     }
 
     public boolean visit(MethodInvocation node) {
         SimpleName name = node.getName();
-//        System.out.println(name.getIdentifier());
-        if (node.resolveMethodBinding() == null)
-            System.exit(0);
-        String declaringClassName = node.resolveMethodBinding().getDeclaringClass().getName();
-        //customize the query, by obtaining some info from CompilationUnit and I*Bindings
-        Query query = new Query();
-        //require absolute pat , import table, and package name from classNade.
-        query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
-                declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
-//        query.search();
-        query.search();
+        if (!Indexing.DEBUG)
+            System.out.println(name.getIdentifier());
+        if (node.resolveMethodBinding() == null) {
+            if (Indexing.DEBUG) {
+                printErrorToConsole(classNode.getAbsolutePath(), name.getIdentifier(),
+                        compilationUnit.getLineNumber(name.getStartPosition()));
+//                System.exit(0);
+            }
+        } else {
+            String declaringClassName = node.resolveMethodBinding().getDeclaringClass().getName();
+            //customize the query, by obtaining some info from CompilationUnit and I*Bindings
+            Query query = new Query();
+            //require absolute pat , import table, and package name from classNade.
+            query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
+                    declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
 
-        //Here, we also can record the data.
-        printToConsole(name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
-        //
+            if (Indexing.DEBUG)
+                query.brutallySearch();
+            else
+                query.search();
+
+            //Here, we also can record the data.
+            if (Indexing.DEBUG)
+                printInfoToConsole(classNode.getAbsolutePath(), name.getIdentifier(),
+                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+        }
         return true;
     }
-
-
 }

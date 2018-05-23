@@ -1,5 +1,6 @@
 package indexer.project;
 
+import indexer.Indexing;
 import indexer.dataunit.Location;
 import indexer.dataunit.node.*;
 import indexer.visitor.declaration.*;
@@ -23,7 +24,6 @@ import org.eclipse.jdt.core.dom.ASTParser;
 
 public class Project {
     private String path;
-    private Vector<ASTVisitor> astVisitors;
     public HashMap<String, ClassNode> projectRoot;
 
 
@@ -46,20 +46,22 @@ public class Project {
 
     public void testingMethodTable() {
         if (projectRoot.isEmpty()) {
-            System.out.println("No Java File in Project " + path);
+            System.out.println("ERROR: No Java File in Project " + path);
             System.exit(0);
         }
         for (Entry<String, ClassNode> classEntry : projectRoot.entrySet()) {
-            System.out.println("#Class File " + classEntry.getKey() + "has Method Declarations: ");
+            System.out.println("#Class File " + classEntry.getKey() + "\nMethod Declarations: ");
             ClassNode classNode = classEntry.getValue();
+            if (!Indexing.DEBUG)
+                if (classNode.methodTable.isEmpty()) {
+                    System.out.println("ERROR: Method Table is empty!");
+                    System.exit(0);
+                }
             for (Entry<String, Location> methodEntry : classNode.methodTable.entrySet())
-                System.out.println(methodEntry.getKey() + " at Line" + methodEntry.getValue().lineNumber);
+                System.out.println(methodEntry.getKey() + " at Line " + methodEntry.getValue().lineNumber);
         }
         System.out.println("Data is OK!");
     }
-
-    public final int DEFINITION = 1;
-    public final int REFERENCE = 2;
 
     public final int VARIABLE = 1;
     public final int IMPORT = 2;
@@ -67,62 +69,66 @@ public class Project {
     public final int METHOD = 8;
     public final int PACKAGE = 16;
 
-
     /*
     flag: Def or Ref, type: variable, class, method, etc.
      */
-    public void exploreWithVisitor(int flag, int type) {
+    public void applyDeclarationVisitor(int type) {
         for (Entry<String, ClassNode> classEntry : projectRoot.entrySet()) {
             ClassNode classNode = classEntry.getValue();
             CompilationUnit compilationUnit = buildCompilationUnit(classNode.getAbsolutePath());
-            if ((flag & DEFINITION) != 0) {
-                if ((type & IMPORT) != 0) {
-                    PackageDeclarationVisitor astVisitor = new PackageDeclarationVisitor(classEntry.getValue());
-                    compilationUnit.accept(astVisitor);
-                }
-                if ((type & PACKAGE) != 0) {
-                    ImportDeclarationVisitor astVisitor = new ImportDeclarationVisitor(classEntry.getValue());
-                    compilationUnit.accept(astVisitor);
-                }
-                if ((type & METHOD) != 0) {
-                    MethodDeclarationVisitor astVisitor = new MethodDeclarationVisitor(compilationUnit, classNode);
-                    compilationUnit.accept(astVisitor);
-                }
-                if ((type & VARIABLE) != 0) {
-                    //Not implemented yet
-                    VariableDeclarationVisitor astVisitor = new VariableDeclarationVisitor(compilationUnit, classNode);
-                    compilationUnit.accept(astVisitor);
-                }
-                if ((type & TYPE) != 0) {
-                    //Not implemented yet
-                    ClassDeclarationVisitor astVisitor = new ClassDeclarationVisitor(compilationUnit, classNode);
-                    compilationUnit.accept(astVisitor);
-                }
-                if (type == 0)
-                    System.exit(0);
+//            System.out.println("xxxxxxxx" + classNode.getAbsolutePath());
+            if ((type & IMPORT) != 0) {
+                PackageDeclarationVisitor astVisitor = new PackageDeclarationVisitor(classEntry.getValue());
+                compilationUnit.accept(astVisitor);
             }
-            if ((flag & REFERENCE) != 0) {
-                if ((flag & DEFINITION) != 0) {
-                    if ((type & IMPORT) != 0) {
-                        //do nothing
-                    }
-                    if ((type & METHOD) != 0) {
-                        MethodReferenceVisitor astVisitor = new MethodReferenceVisitor(compilationUnit, classNode);
-                        compilationUnit.accept(astVisitor);
-                    }
-                    if ((type & VARIABLE) != 0) {
-                    }
-
-                    if ((type & TYPE) != 0) {
-                    }
-                    if (type == 0)
-                        System.exit(0);
-                }
+            if ((type & PACKAGE) != 0) {
+                ImportDeclarationVisitor astVisitor = new ImportDeclarationVisitor(classEntry.getValue());
+                compilationUnit.accept(astVisitor);
+            }
+            if ((type & METHOD) != 0) {
+                MethodDeclarationVisitor astVisitor = new MethodDeclarationVisitor(compilationUnit, classNode);
+                compilationUnit.accept(astVisitor);
+            }
+            if ((type & VARIABLE) != 0) {
+                //Not implemented yet
+                VariableDeclarationVisitor astVisitor = new VariableDeclarationVisitor(compilationUnit, classNode);
+                compilationUnit.accept(astVisitor);
+            }
+            if ((type & TYPE) != 0) {
+                //Not implemented yet
+                ClassDeclarationVisitor astVisitor = new ClassDeclarationVisitor(compilationUnit, classNode);
+                compilationUnit.accept(astVisitor);
+            }
+            if (type == 0) {
+                System.out.println("ERROR: in applyDeclarationVisitor");
+                System.exit(0);
             }
         }
     }
 
+    public void applyReferenceVisitor(int type) {
+        for (Entry<String, ClassNode> classEntry : projectRoot.entrySet()) {
+            ClassNode classNode = classEntry.getValue();
+            CompilationUnit compilationUnit = buildCompilationUnit(classNode.getAbsolutePath());
+//            System.out.println("xxxxxxxx" + classNode.getAbsolutePath());
+            if ((type & IMPORT) != 0) {
+                //do nothing
+            }
+            if ((type & METHOD) != 0) {
+                MethodReferenceVisitor astVisitor = new MethodReferenceVisitor(compilationUnit, classNode);
+                compilationUnit.accept(astVisitor);
+            }
+            if ((type & VARIABLE) != 0) {
+            }
 
+            if ((type & TYPE) != 0) {
+            }
+            if (type == 0) {
+                System.out.println("ERROR: in applyReferenceVisitor");
+                System.exit(0);
+            }
+        }
+    }
 
 
     public CompilationUnit buildCompilationUnit(String absolutePath) {
