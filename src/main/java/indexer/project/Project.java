@@ -8,15 +8,12 @@ import indexer.visitor.reference.*;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Vector;
 import java.util.Map.Entry;
-
-import org.apache.commons.io.FileUtils;
-
 import java.io.IOException;
 import java.util.Map;
 
-import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.apache.commons.io.FileUtils;
+
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -29,10 +26,6 @@ public class Project {
 
     public Project() {
         this.projectRoot = new HashMap<>();
-    }
-
-    public Project(String path) {
-        this.path = path;
     }
 
     //for testing the data in the built project root

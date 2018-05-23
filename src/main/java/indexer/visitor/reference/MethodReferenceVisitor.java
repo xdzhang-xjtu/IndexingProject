@@ -25,10 +25,16 @@ public class MethodReferenceVisitor extends ASTVisitor {
         System.out.print("行" + lineNumber + " # ");
         System.out.print("方法调用" + name + " # ");
 
-        if ((result.size() == 0))
+        if ((result.size() == 0)) {
+            Indexing.statistics.EXTERNAL_CALL++;
             System.out.println("外部函数");
+        }
         else {
+            Indexing.statistics.INTERNAL_CALL++;
             System.out.print("@");
+            if (result.size()>2){
+                Indexing.statistics.EXCEPTION_MULTI_DEFS ++;
+            }
             System.out.println(result);
         }
     }
@@ -41,10 +47,12 @@ public class MethodReferenceVisitor extends ASTVisitor {
     }
 
     public boolean visit(MethodInvocation node) {
+        Indexing.statistics.CALL++;
         SimpleName name = node.getName();
         if (!Indexing.DEBUG)
             System.out.println(name.getIdentifier());
         if (node.resolveMethodBinding() == null) {
+            Indexing.statistics.EXCEPTION_NULL_BINGDING++;
             if (Indexing.DEBUG) {
                 printErrorToConsole(classNode.getAbsolutePath(), name.getIdentifier(),
                         compilationUnit.getLineNumber(name.getStartPosition()));
