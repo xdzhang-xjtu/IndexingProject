@@ -13,12 +13,12 @@ public class Indexing {
     static public void main(String[] args) {
         statistics.setStartTime(System.currentTimeMillis());
         if (DEBUG) {
-            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/javasyntax",
-                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
+//            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/javasyntax",
+//                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
 //            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
 //                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
-//            project.setPath("/Users/zhangxiaodong10/IdeaProjects/Symbol_Table");
-//            project.setPath("/Users/zhangxiaodong10/eclipse-workspace/Test");
+            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/IndexingProject",
+                    "/Users/zhangxiaodong10/IdeaProjects/IndexingProject/src/main/java");
 
         } else {
             if (args.length < 2) {

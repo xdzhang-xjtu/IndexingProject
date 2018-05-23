@@ -45,7 +45,7 @@ public class ClassNode {
         this.classTable = new HashMap<>();
         this.definitionTable = new HashMap<>();
         this.importTable = new Vector<>();
-        this.packageStr = "";
+        this.packageStr = "-";
     }
 
     public HashMap<String, Location> methodTable;

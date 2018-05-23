@@ -4,10 +4,7 @@ import indexer.Indexing;
 import indexer.dataunit.Location;
 import indexer.dataunit.node.ClassNode;
 import indexer.query.Query;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.*;
 
 import java.util.Vector;
 
@@ -63,7 +60,14 @@ public class MethodReferenceVisitor extends ASTVisitor {
 //                System.exit(0);
             }
         } else {
-            String declaringClassName = node.resolveMethodBinding().getDeclaringClass().getName();
+            ITypeBinding iTypeBinding = node.resolveMethodBinding().getDeclaringClass();
+            if (iTypeBinding.getPackage()==null){
+                System.err.println("Cannot resolve the package of decalaring class");
+                System.exit(0);
+            }else {
+                System.err.println("The resolved package is " + iTypeBinding.getPackage().getName());
+            }
+            String declaringClassName = iTypeBinding.getName();
             //customize the query, by obtaining some info from CompilationUnit and I*Bindings
             Query query = new Query();
             //require absolute pat , import table, and package name from classNade.
