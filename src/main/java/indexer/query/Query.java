@@ -36,7 +36,7 @@ public class Query {
     public void brutallySearch() {
         for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
             if (declaringClassName.equals(classEntry.getValue().getName())) {
-                if (Indexing.DEBUG)
+                if (!Indexing.DEBUG)
                     System.err.println(declaringClassName + "==" + classEntry.getValue().getName());
                 if (!Indexing.DEBUG) {
                     System.err.println(declaringClassName + "=" + classEntry.getValue().getName());
@@ -44,14 +44,9 @@ public class Query {
                         System.err.println("Method: " + methodEntry.getKey());
                 }
                 if (classEntry.getValue().methodTable.containsKey(methodName)) {
-                    System.err.println("Method: " + methodName);
-
                     Location location = classEntry.getValue().methodTable.get(methodName);
                     location.scope = "GLOBAL";
                     queryResult.add(location);
-
-                    System.err.println(location);
-//                    System.exit(0);
                 }
             }
         }
@@ -115,7 +110,6 @@ public class Query {
             //determine the candidate packages
             Vector<String> waitingList = new Vector<>();
             for (String entry : importsList) {
-                System.err.println("Import name " + entry);
                 if (!Indexing.DEBUG) {
                     System.err.println("Declarating Class name: " + declaringClassName);
                 }
@@ -125,13 +119,6 @@ public class Query {
                         System.err.println(entry + " package name : " + packageName);
                     }
                     waitingList.add(packageName);
-                }
-
-
-                if (entry.endsWith(".*")) {
-                    String packageName = entry.substring(0, entry.lastIndexOf("."));
-                    System.err.println("Import" + entry + " package name : " + packageName);
-                    System.exit(0);
                 }
             }
 
