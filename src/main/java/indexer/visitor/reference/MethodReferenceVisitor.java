@@ -61,11 +61,9 @@ public class MethodReferenceVisitor extends ASTVisitor {
             System.err.println(name.getIdentifier());
         if (node.resolveMethodBinding() == null) {
             Indexing.statistics.EXCEPTION_NULL_BINGDING++;
-            if (Indexing.DEBUG) {
-                printException(classNode.getUrl(), name.getIdentifier(),
-                        compilationUnit.getLineNumber(name.getStartPosition()));
+            printException(classNode.getUrl(), name.getIdentifier(),
+                    compilationUnit.getLineNumber(name.getStartPosition()));
 //                System.exit(0);
-            }
         } else {
             ITypeBinding iTypeBinding = node.resolveMethodBinding().getDeclaringClass();
             String destPackage;
@@ -75,14 +73,15 @@ public class MethodReferenceVisitor extends ASTVisitor {
                     System.exit(0);
                 }
                 destPackage = "";// thus, perform no restrict
-            }else {
+            } else {
                 destPackage = iTypeBinding.getPackage().getName();
             }
 
-            if (isExternalMethod(destPackage)){
+            if (isExternalMethod(destPackage)) {
+                Indexing.statistics.EXTERNAL_CALL++;
                 printExternalMethod(classNode.getUrl(), name.getIdentifier(),
                         compilationUnit.getLineNumber(name.getStartPosition()));
-            }else {
+            } else {
                 String declaringClassName = iTypeBinding.getName();
                 //customize the query, by obtaining some info from CompilationUnit and I*Bindings
                 Query query = new Query();
@@ -100,16 +99,12 @@ public class MethodReferenceVisitor extends ASTVisitor {
                     printCallRelation(classNode.getUrl(), name.getIdentifier(),
                             compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
             }
-
-
-
-
         }
         return true;
     }
 
-    private boolean isExternalMethod(String destPackage){
-        for (String str : Indexing.externalLibs){
+    private boolean isExternalMethod(String destPackage) {
+        for (String str : Indexing.externalLibs) {
             if (str.equals(destPackage))
                 return true;
         }
