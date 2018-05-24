@@ -63,7 +63,7 @@ public class MethodReferenceVisitor extends ASTVisitor {
             String destPackage;
             if (iTypeBinding.getPackage() == null) {
                 if (!Indexing.DEBUG) {
-                    System.err.println("Cannot resolve the package of decalaring class");
+                    System.err.println("Cannot resolve the package of declaring class");
                     System.exit(0);
                 }
                 destPackage = "";// thus, perform no restrict
@@ -73,13 +73,13 @@ public class MethodReferenceVisitor extends ASTVisitor {
 
             if (isExternalMethod(destPackage)) {
                 Indexing.statistics.EXTERNAL_CALL++;
-//                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
-//                        compilationUnit.getLineNumber(name.getStartPosition()));
+                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
+                        compilationUnit.getLineNumber(name.getStartPosition()));
             } else {
                 String declaringClassName = iTypeBinding.getName();
                 //customize the query, by obtaining some info from CompilationUnit and I*Bindings
                 Query query = new Query();
-                //require absolute pat , import table, and package name from classNade.
+                //require absolute path, import table, and package name from classNade.
                 query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
                         declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
                 query.setQueryScope(name.getIdentifier(), destPackage, declaringClassName);
@@ -98,8 +98,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
                     }
                 }
                 //Here, we also can record the data.
-//                printCallRelation(classNode.getUrl(), name.getIdentifier(),
-//                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+                printCallRelation(classNode.getUrl(), name.getIdentifier(),
+                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
             }
         }
         return true;
