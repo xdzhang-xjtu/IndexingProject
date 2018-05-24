@@ -23,19 +23,13 @@ public class MethodReferenceVisitor extends ASTVisitor {
         System.err.print("调用" + name + " # ");
 
         if ((result.size() == 0)) {
-            Indexing.statistics.EXTERNAL_CALL++;
             System.err.println("调用外部函数");
         } else {
-            Indexing.statistics.INTERNAL_CALL++;
             System.err.print("定义@");
             System.err.println(result);
 
             if (result.size() >= 2) {
-                if (Indexing.DEBUG) {
-                    System.err.print(" ERROR: Multiple Defs!");
-                    System.exit(0);
-                }
-                Indexing.statistics.EXCEPTION_MULTI_DEFS++;
+                System.err.print(" ERROR: Multiple Defs!");
             }
         }
     }
@@ -79,25 +73,33 @@ public class MethodReferenceVisitor extends ASTVisitor {
 
             if (isExternalMethod(destPackage)) {
                 Indexing.statistics.EXTERNAL_CALL++;
-                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
-                        compilationUnit.getLineNumber(name.getStartPosition()));
+//                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
+//                        compilationUnit.getLineNumber(name.getStartPosition()));
             } else {
                 String declaringClassName = iTypeBinding.getName();
                 //customize the query, by obtaining some info from CompilationUnit and I*Bindings
                 Query query = new Query();
                 //require absolute pat , import table, and package name from classNade.
-//            query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
-//                    declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
+                query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
+                        declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
                 query.setQueryScope(name.getIdentifier(), destPackage, declaringClassName);
 
                 if (!Indexing.DEBUG)
                     query.brutallySearch();
                 else
                     query.search_v2();
+
+                if ((query.queryResult.size() == 0)) {
+                    Indexing.statistics.EXTERNAL_CALL++;
+                } else {
+                    Indexing.statistics.INTERNAL_CALL++;
+                    if (query.queryResult.size() >= 2) {
+                        Indexing.statistics.EXCEPTION_MULTI_DEFS++;
+                    }
+                }
                 //Here, we also can record the data.
-                if (Indexing.DEBUG)
-                    printCallRelation(classNode.getUrl(), name.getIdentifier(),
-                            compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+//                printCallRelation(classNode.getUrl(), name.getIdentifier(),
+//                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
             }
         }
         return true;

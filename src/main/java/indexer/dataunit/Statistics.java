@@ -6,7 +6,6 @@ import indexer.dataunit.node.ClassNode;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Map;
 
 public class Statistics {
@@ -15,8 +14,12 @@ public class Statistics {
     public int INTERNAL_CALL;
     public int EXCEPTION_MULTI_DEFS;
     public int EXCEPTION_NULL_BINGDING;
-    private long startTime;
-    private long endTime;
+    private long startTimeTotal;
+    private long endTimeTotal;
+    private long startTimeCollection;
+    private long endTimeCollection;
+    private long startTimeIndexing;
+    private long endTimeIndexing;
 
     public Statistics() {
         this.CALL = 0;
@@ -26,33 +29,64 @@ public class Statistics {
         this.EXCEPTION_NULL_BINGDING = 0;
     }
 
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
+    public void setStartTimeTotal(long startTimeTotal) {
+        this.startTimeTotal = startTimeTotal;
     }
 
-    public void setEndTime(long endTime) {
-        this.endTime = endTime;
+    public void setEndTimeTotal(long endTimeTotal) {
+        this.endTimeTotal = endTimeTotal;
     }
 
-    public double getTimeCost() {
-        if (endTime == startTime)
+    public void setStartTimeCollection(long startTimeCollection) {
+        this.startTimeCollection = startTimeCollection;
+    }
+
+    public void setEndTimeCollection(long endTimeCollection) {
+        this.endTimeCollection = endTimeCollection;
+    }
+
+    public void setStartTimeIndexing(long startTimeIndexing) {
+        this.startTimeIndexing = startTimeIndexing;
+    }
+
+    public void setEndTimeIndexing(long endTimeIndexing) {
+        this.endTimeIndexing = endTimeIndexing;
+    }
+
+    public double getTimeCostTotal() {
+        if (endTimeTotal == startTimeTotal)
             return -1.0;
         else
-            return (double) (endTime - startTime) / 1000.0;
+            return (endTimeTotal - startTimeTotal) / 1000.0;
     }
 
+    public double getTimeCostCollection() {
+        if (endTimeCollection == startTimeCollection)
+            return -1.0;
+        else
+            return (endTimeCollection - startTimeCollection) / 1000.0;
+    }
+
+    public double getTimeCostIndexing() {
+        if (endTimeIndexing == startTimeIndexing)
+            return -1.0;
+        else
+            return (endTimeIndexing - startTimeIndexing) / 1000.0;
+    }
 
     @Override
     public String toString() {
         return "\n统计信息{" +
-                " 代码总行数: " + computeLineNumber() +
-                ", 类数量：" + Indexing.project.projectData.size() +
-                ", 函数调用数量: " + CALL +
-                ", 检测到外部函数调用: " + EXTERNAL_CALL +
-                ", 检测到内部函数调用: " + INTERNAL_CALL +
-                ", 调用无法解析异常(NULL Bindings): " + EXCEPTION_NULL_BINGDING +
-                ", 多定义异常：" + EXCEPTION_MULTI_DEFS +
-                ", 耗时: " + getTimeCost() + "s" +
+                "\n代码总行数: " + computeLineNumber() +
+                "\n类数量：" + Indexing.project.projectData.size() +
+                "\n函数调用数量: " + CALL +
+                "\n检测到内部函数调用: " + INTERNAL_CALL +
+                "\n检测到外部函数调用: " + EXTERNAL_CALL +
+                "\n调用无法解析异常(NULL Bindings): " + EXCEPTION_NULL_BINGDING +
+                "\n多定义异常：" + EXCEPTION_MULTI_DEFS +
+                "\n总耗时: " + getTimeCostTotal() + "s" +
+                ", 收集数据耗时: " + getTimeCostCollection() + "s" +
+                ", 索引耗时: " + getTimeCostIndexing() + "s" +
                 '}';
     }
 

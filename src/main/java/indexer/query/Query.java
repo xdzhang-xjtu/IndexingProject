@@ -88,6 +88,9 @@ public class Query {
         }
     }
 
+    /*
+    deprecated, for testing only
+     */
     public void search() {
 
         boolean classFlag = false;

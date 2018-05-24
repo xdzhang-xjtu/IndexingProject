@@ -145,7 +145,9 @@ public class Project {
         //in the future work, need to implement it.
         String[] sources = {sourcePath};
         //should automatically extract librt.jar from system
-        String[] classpath = {"/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home/jre/librt.jar"};
+        String[] classpath = {
+                "/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home/jre/lib/rt.jar"
+                };
         //must be added, otherwise, the bindings can't be resolved.
         parser.setEnvironment(classpath, sources, new String[]{"UTF-8"}, true);
         parser.setSource(str.toCharArray());
@@ -190,9 +192,9 @@ public class Project {
                     } else {
                         if (subfile.getName().endsWith("java")) {
                             String className = subfile.getName().split("\\.")[0];
-                            String abusolutePath = subfile.getAbsolutePath();
+                            String absolutePath = subfile.getAbsolutePath();
                             projectData.put(subfile.getAbsolutePath(), new ClassNode(className,
-                                    abusolutePath.substring(projectPath.length()), subfile.getAbsolutePath()));
+                                    absolutePath.substring(projectPath.length()), subfile.getAbsolutePath()));
                         }
                     }
                 }
