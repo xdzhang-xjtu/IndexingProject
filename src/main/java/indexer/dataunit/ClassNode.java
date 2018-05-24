@@ -1,6 +1,4 @@
-package indexer.dataunit.node;
-
-import indexer.dataunit.*;
+package indexer.dataunit;
 
 import java.util.HashMap;
 import java.util.Vector;

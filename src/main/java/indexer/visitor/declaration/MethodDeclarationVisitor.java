@@ -2,7 +2,7 @@ package indexer.visitor.declaration;
 
 import indexer.Indexing;
 import indexer.dataunit.Location;
-import indexer.dataunit.node.ClassNode;
+import indexer.dataunit.ClassNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.SimpleName;

@@ -1,8 +1,8 @@
 package indexer.project;
 
 import indexer.Indexing;
+import indexer.dataunit.ClassNode;
 import indexer.dataunit.Location;
-import indexer.dataunit.node.*;
 import indexer.visitor.declaration.*;
 import indexer.visitor.reference.*;
 

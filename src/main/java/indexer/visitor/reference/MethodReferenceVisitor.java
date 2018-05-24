@@ -2,7 +2,7 @@ package indexer.visitor.reference;
 
 import indexer.Indexing;
 import indexer.dataunit.Location;
-import indexer.dataunit.node.ClassNode;
+import indexer.dataunit.ClassNode;
 import indexer.query.Query;
 import org.eclipse.jdt.core.dom.*;
 

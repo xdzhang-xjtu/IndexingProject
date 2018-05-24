@@ -1,4 +1,4 @@
-package indexer.dataunit.table;
+package indexer.dataunit;
 
 import java.util.HashMap;
 

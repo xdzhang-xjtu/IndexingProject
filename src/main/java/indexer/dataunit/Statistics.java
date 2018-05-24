@@ -1,7 +1,6 @@
 package indexer.dataunit;
 
 import indexer.Indexing;
-import indexer.dataunit.node.ClassNode;
 
 import java.io.File;
 import java.io.BufferedReader;

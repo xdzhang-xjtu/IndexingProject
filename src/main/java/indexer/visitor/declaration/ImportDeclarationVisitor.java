@@ -1,7 +1,7 @@
 package indexer.visitor.declaration;
 
 import indexer.Indexing;
-import indexer.dataunit.node.ClassNode;
+import indexer.dataunit.ClassNode;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.Name;
 
