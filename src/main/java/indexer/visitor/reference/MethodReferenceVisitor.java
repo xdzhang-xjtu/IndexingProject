@@ -55,8 +55,7 @@ public class MethodReferenceVisitor extends ASTVisitor {
             System.err.println(name.getIdentifier());
         if (node.resolveMethodBinding() == null) {
             Indexing.statistics.EXCEPTION_NULL_BINGDING++;
-            printException(classNode.getUrl(), name.getIdentifier(),
-                    compilationUnit.getLineNumber(name.getStartPosition()));
+//            printException(classNode.getUrl(), name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()));
 //                System.exit(0);
         } else {
             ITypeBinding iTypeBinding = node.resolveMethodBinding().getDeclaringClass();
@@ -73,8 +72,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
 
             if (isExternalMethod(destPackage)) {
                 Indexing.statistics.EXTERNAL_CALL++;
-                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
-                        compilationUnit.getLineNumber(name.getStartPosition()));
+//                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
+//                        compilationUnit.getLineNumber(name.getStartPosition()));
             } else {
                 String declaringClassName = iTypeBinding.getName();
                 //customize the query, by obtaining some info from CompilationUnit and I*Bindings
@@ -98,8 +97,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
                     }
                 }
                 //Here, we also can record the data.
-                printCallRelation(classNode.getUrl(), name.getIdentifier(),
-                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+//                printCallRelation(classNode.getUrl(), name.getIdentifier(),
+//                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
             }
         }
         return true;

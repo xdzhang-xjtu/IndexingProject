@@ -1,9 +1,12 @@
 package indexer.visitor.declaration;
 
+import indexer.Indexing;
 import indexer.dataunit.ClassNode;
+import indexer.dataunit.Location;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.SimpleName;
 
 public class ClassDeclarationVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
@@ -15,10 +18,16 @@ public class ClassDeclarationVisitor extends ASTVisitor {
     }
 
     public boolean visit(TypeDeclaration node) {
-//        SimpleName name = node.getName();
-//        String line = String.valueOf(compilationUnit.getLineNumber(name.getStartPosition()));
-//        classNode.methodTable.put(name.getIdentifier(), line);
-
+        SimpleName name = node.getName();
+        int line = compilationUnit.getLineNumber(name.getStartPosition());
+        Location location = new Location(line, classNode.getUrl());
+        if (!classNode.getName().equals(name.getIdentifier())) {
+            System.err.println("ERROR: Different file name with class name!");
+            System.exit(0);
+        }
+        classNode.classTable.put(name.getIdentifier(), location);
+        if (Indexing.DEBUG)
+            System.err.println(classNode.getName() + " : " + name.getIdentifier() + " @ " + location);
         return true;
     }
 }

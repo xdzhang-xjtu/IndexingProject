@@ -7,7 +7,7 @@ import java.io.File;
 
 public class Indexing {
     final static public boolean DEBUG = true;
-    final static public  String[] externalLibs = {
+    final static public String[] externalLibs = {
             "java.applet",
             "java.awt",
             "java.beans",
@@ -35,8 +35,8 @@ public class Indexing {
 //                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
 //            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
 //                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
-            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/IndexingProject",
-                    "/Users/zhangxiaodong10/IdeaProjects/IndexingProject/src/main/java");
+            project.setPaths("/Users/xdzhang/IdeaProjects/IndexingProject",
+                    "/Users/xdzhang/IdeaProjects/IndexingProject/src/main/java");
 
         } else {
             if (args.length < 2) {
@@ -45,7 +45,7 @@ public class Indexing {
             } else if (args.length > 2) {
                 System.err.println("Too many parameters!");
                 return;
-            }else {
+            } else {
                 File projectPath = new File(args[0]);
                 if (!projectPath.exists()) {
                     System.err.println("The project path is wrong!");
@@ -65,7 +65,7 @@ public class Indexing {
         project.initialize();
         //collecting info
         statistics.setStartTimeCollection(System.currentTimeMillis());
-        project.applyDeclarationVisitor(project.IMPORT | project.PACKAGE | project.METHOD);
+        project.applyDeclarationVisitor(project.IMPORT | project.PACKAGE | project.METHOD | project.TYPE);
         statistics.setEndTimeCollection(System.currentTimeMillis());
         if (!DEBUG) {
             project.test();

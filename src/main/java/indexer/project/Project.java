@@ -169,6 +169,7 @@ public class Project {
             buildClassList(new File(projectPath));
         } else {
             String className = file.getName().split("\\.")[0];
+
             projectData.put(file.getAbsolutePath(), new ClassNode(className, file.getName(), projectPath));
         }
         return true;
@@ -203,5 +204,4 @@ public class Project {
             System.err.println(file.getName() + " does not exist!");
         }
     }
-
 }
