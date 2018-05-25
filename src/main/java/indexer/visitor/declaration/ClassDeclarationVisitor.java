@@ -23,7 +23,7 @@ public class ClassDeclarationVisitor extends ASTVisitor {
         Location location = new Location(line, classNode.getUrl());
         //other cases to be handled
         if (!classNode.getName().equals(name.getIdentifier())) {
-            System.err.println("ERROR: File name with class name are different!" +
+            System.err.println("ERROR: File name with class name are different!-->" +
                     classNode.getName() + "!=" + name.getIdentifier());
             System.exit(0);
         }

@@ -48,6 +48,13 @@ public class MethodReferenceVisitor extends ASTVisitor {
         System.err.println("调用外部函数");
     }
 
+    public void printUnfoundMethod(String path, String name, int lineNumber) {
+        System.err.print("文件" + path + " # ");
+        System.err.print("行" + lineNumber + " # ");
+        System.err.print("调用" + name + " # ");
+        System.err.println("Unfound");
+    }
+
     public boolean visit(MethodInvocation node) {
         Indexing.statistics.CALL++;
         SimpleName name = node.getName();
@@ -55,7 +62,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
             System.err.println(name.getIdentifier());
         if (node.resolveMethodBinding() == null) {
             Indexing.statistics.EXCEPTION_NULL_BINDING_METHOD++;
-            printException(classNode.getUrl(), name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()));
+            printException(classNode.getUrl(), name.getIdentifier(),
+                    compilationUnit.getLineNumber(name.getStartPosition()));
 //                System.exit(0);
         } else {
             ITypeBinding iTypeBinding = node.resolveMethodBinding().getDeclaringClass();
@@ -70,6 +78,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
                 destPackage = iTypeBinding.getPackage().getName();
             }
 
+            if (iTypeBinding.isFromSource())
+                System.err.println("from source, work");
             if (isExternalMethod(destPackage)) {
                 Indexing.statistics.EXTERNAL_CALL++;
                 printExternalMethod(classNode.getUrl(), name.getIdentifier(),
@@ -88,6 +98,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
 
                 if ((query.queryResult.size() == 0)) {
                     Indexing.statistics.CALL_NOT_FOUND++;
+                    printUnfoundMethod(classNode.getUrl(), name.getIdentifier(),
+                            compilationUnit.getLineNumber(name.getStartPosition()));
                 } else {
                     Indexing.statistics.INTERNAL_CALL++;
                     if (query.queryResult.size() >= 2) {

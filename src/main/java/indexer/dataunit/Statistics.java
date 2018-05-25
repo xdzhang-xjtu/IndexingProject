@@ -102,7 +102,7 @@ public class Statistics {
                 ", 未找到函数定义: " + CALL_NOT_FOUND +
                 ", NULL Binding: " + EXCEPTION_NULL_BINDING_METHOD +
                 ", 多定义异常: " + EXCEPTION_MULTI_DEFS +
-                "\n类型: 引用: " + TYPE_REF +
+                "\nType: 引用数量: " + TYPE_REF +
                 ", 项目内类引用: " + CLASS_REF_INTERNAL +
                 ", 项目外类引用: " + CLASS_REF_EXTERNAL +
                 ", 项目内接口引用: " + INTERFACE_REF_INTERNAL +
