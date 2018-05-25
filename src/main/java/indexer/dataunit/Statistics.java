@@ -9,10 +9,19 @@ import java.util.Map;
 
 public class Statistics {
     public int CALL;
+    public int CALL_NOT_FOUND;//do not find the declaration
     public int EXTERNAL_CALL;
     public int INTERNAL_CALL;
     public int EXCEPTION_MULTI_DEFS;
-    public int EXCEPTION_NULL_BINGDING;
+    public int EXCEPTION_NULL_BINDING_METHOD;
+    public int DECLARING_CLASS;
+    public int TYPE_REF;
+    public int TYPE_REF_NOT_FOUND;
+    public int CLASS_REF_INTERNAL;
+    public int INTERFACE_REF_INTERNAL;
+    public int CLASS_REF_EXTERNAL;
+    public int INTERFACE_REF_EXTERNAL;
+    public int EXCEPTION_NULL_BINDING_TYPE;
     private long startTimeTotal;
     private long endTimeTotal;
     private long startTimeCollection;
@@ -22,10 +31,19 @@ public class Statistics {
 
     public Statistics() {
         this.CALL = 0;
+        this.CALL_NOT_FOUND = 0;
         this.EXTERNAL_CALL = 0;
         this.INTERNAL_CALL = 0;
         this.EXCEPTION_MULTI_DEFS = 0;
-        this.EXCEPTION_NULL_BINGDING = 0;
+        this.EXCEPTION_NULL_BINDING_METHOD = 0;
+        this.DECLARING_CLASS = 0;
+        this.TYPE_REF = 0;
+        this.TYPE_REF_NOT_FOUND = 0;
+        this.CLASS_REF_INTERNAL = 0;
+        this.CLASS_REF_EXTERNAL = 0;
+        this.INTERFACE_REF_INTERNAL = 0;
+        this.INTERFACE_REF_EXTERNAL = 0;
+        this.EXCEPTION_NULL_BINDING_TYPE = 0;
     }
 
     public void setStartTimeTotal(long startTimeTotal) {
@@ -75,14 +93,22 @@ public class Statistics {
 
     @Override
     public String toString() {
-        return "\n统计信息{" +
-                "\n代码总行数: " + computeLineNumber() +
-                "\n类数量：" + Indexing.project.projectData.size() +
-                "\n函数调用数量: " + CALL +
-                "\n检测到内部函数调用: " + INTERNAL_CALL +
-                "\n检测到外部函数调用: " + EXTERNAL_CALL +
-                "\n调用无法解析异常(NULL Bindings): " + EXCEPTION_NULL_BINGDING +
-                "\n多定义异常：" + EXCEPTION_MULTI_DEFS +
+        return "统计信息{" +
+                "代码总行数: " + computeLineNumber() +
+                ", 类数量：" + DECLARING_CLASS +
+                "\nMethod: 调用数量: " + CALL +
+                ", 内部调用: " + INTERNAL_CALL +
+                ", 外部调用: " + EXTERNAL_CALL +
+                ", 未找到函数定义: " + CALL_NOT_FOUND +
+                ", NULL Binding: " + EXCEPTION_NULL_BINDING_METHOD +
+                ", 多定义异常: " + EXCEPTION_MULTI_DEFS +
+                "\n类型: 引用: " + TYPE_REF +
+                ", 项目内类引用: " + CLASS_REF_INTERNAL +
+                ", 项目外类引用: " + CLASS_REF_EXTERNAL +
+                ", 项目内接口引用: " + INTERFACE_REF_INTERNAL +
+                ", 项目外接口引用: " + INTERFACE_REF_EXTERNAL +
+                ", 未找到类型定义: " + TYPE_REF_NOT_FOUND +
+                ", NULL Binding: " + EXCEPTION_NULL_BINDING_TYPE +
                 "\n总耗时: " + getTimeCostTotal() + "s" +
                 ", 收集数据耗时: " + getTimeCostCollection() + "s" +
                 ", 索引耗时: " + getTimeCostIndexing() + "s" +

@@ -13,6 +13,6 @@ public class Location {
 
     @Override
     public String toString() {
-        return "文件" + path + "#行" + lineNumber + " 范围: " + scope;
+        return "文件" + path + "#行" + lineNumber + " 途径: " + scope;
     }
 }

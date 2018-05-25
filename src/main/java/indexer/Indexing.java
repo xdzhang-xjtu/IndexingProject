@@ -35,8 +35,10 @@ public class Indexing {
 //                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
 //            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
 //                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
-            project.setPaths("/Users/xdzhang/IdeaProjects/IndexingProject",
-                    "/Users/xdzhang/IdeaProjects/IndexingProject/src/main/java");
+//            project.setPaths("/Users/xdzhang/IdeaProjects/IndexingProject",
+//                    "/Users/xdzhang/IdeaProjects/IndexingProject/src/main/java");
+            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/IndexingProject",
+                    "/Users/zhangxiaodong10/IdeaProjects/IndexingProject/src/main/java");
 
         } else {
             if (args.length < 2) {
@@ -72,7 +74,7 @@ public class Indexing {
         }
         //indexing info
         statistics.setStartTimeIndexing(System.currentTimeMillis());
-        project.applyReferenceVisitor(project.METHOD);
+        project.applyReferenceVisitor(project.TYPE);
         statistics.setEndTimeIndexing(System.currentTimeMillis());
 
         statistics.setEndTimeTotal(System.currentTimeMillis());

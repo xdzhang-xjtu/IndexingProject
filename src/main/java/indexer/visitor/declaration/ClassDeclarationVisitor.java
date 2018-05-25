@@ -21,12 +21,15 @@ public class ClassDeclarationVisitor extends ASTVisitor {
         SimpleName name = node.getName();
         int line = compilationUnit.getLineNumber(name.getStartPosition());
         Location location = new Location(line, classNode.getUrl());
+        //other cases to be handled
         if (!classNode.getName().equals(name.getIdentifier())) {
-            System.err.println("ERROR: Different file name with class name!");
+            System.err.println("ERROR: File name with class name are different!" +
+                    classNode.getName() + "!=" + name.getIdentifier());
             System.exit(0);
         }
-        classNode.classTable.put(name.getIdentifier(), location);
-        if (Indexing.DEBUG)
+        Indexing.statistics.DECLARING_CLASS++;
+        classNode.classLocation = location;
+        if (!Indexing.DEBUG)
             System.err.println(classNode.getName() + " : " + name.getIdentifier() + " @ " + location);
         return true;
     }

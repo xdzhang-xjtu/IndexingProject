@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Vector;
 
 public class Query {
-    private String methodName;
+    private String token;
     private String selfPackage;
     private String declaringClassName;
     private String selfAbsolutePath;
@@ -19,7 +19,7 @@ public class Query {
     public Vector<Location> queryResult;
 
     public Query() {
-        this.methodName = "-";
+        this.token = "-";
         this.selfPackage = "-";
         this.declaringClassName = "-";
         this.selfAbsolutePath = "-";
@@ -27,22 +27,18 @@ public class Query {
         this.destPackage = "-";
     }
 
-    public void setQueryScope(String methodName, String selfPackage, String declaringClassName,
-                              String selfAbsolutePath, Vector<String> importsList) {
-        this.methodName = methodName;
-        this.selfPackage = selfPackage;
-        this.declaringClassName = declaringClassName;
-        this.selfAbsolutePath = selfAbsolutePath;
-        this.importsList = importsList;
-    }
-
-    public void setQueryScope(String methodName, String destPackage, String declaringClassName) {
-        this.methodName = methodName;
+    public void setMethodQueryScope(String token, String destPackage, String declaringClassName) {
+        this.token = token;
         this.destPackage = destPackage;
         this.declaringClassName = declaringClassName;
     }
 
-    public void brutallySearch() {
+    public void setTypeQueryScope(String token, String destPackage) {
+        this.token = token;
+        this.destPackage = destPackage;
+    }
+
+    public void brutallySearchMethod() {
         for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
             if (declaringClassName.equals(classEntry.getValue().getName())) {
                 if (!Indexing.DEBUG)
@@ -52,8 +48,8 @@ public class Query {
                     for (Map.Entry<String, Location> methodEntry : classEntry.getValue().methodTable.entrySet())
                         System.err.println("Method: " + methodEntry.getKey());
                 }
-                if (classEntry.getValue().methodTable.containsKey(methodName)) {
-                    Location location = classEntry.getValue().methodTable.get(methodName);
+                if (classEntry.getValue().methodTable.containsKey(token)) {
+                    Location location = classEntry.getValue().methodTable.get(token);
                     location.scope = "GLOBAL";
                     queryResult.add(location);
                 }
@@ -61,18 +57,18 @@ public class Query {
         }
     }
 
-    public void search_v2() {
+    public void searchMethod() {
         boolean dest_package = false;
         for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
             ClassNode classNode = classEntry.getValue();
             if (destPackage.equals(classNode.getPackageStr()) &&
                     declaringClassName.equals(classNode.getName())) {
-                if (classNode.methodTable.containsKey(methodName)) {
-                    Location loc = classNode.methodTable.get(methodName);
+                if (classNode.methodTable.containsKey(token)) {
+                    Location loc = classNode.methodTable.get(token);
                     loc.scope = "DEST_PACKAGE";
                     queryResult.add(loc);
                     dest_package = true;
-                }else {
+                } else {
                     System.err.println("ERROR: There is no a method.");
                     System.exit(0);
                 }
@@ -84,8 +80,30 @@ public class Query {
             /*if the above three steps are sound,
             then we can conclude that this method is out of the project!
              */
-            brutallySearch();
+            brutallySearchMethod();
         }
+    }
+
+    public void searchType() {//include class and interface
+        for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
+            ClassNode classNode = classEntry.getValue();
+            if (destPackage.equals(classNode.getPackageStr()) &&
+                    token.equals(classNode.getName())) {
+                queryResult.add(classEntry.getValue().classLocation);
+            }
+        }
+    }
+
+    /*
+    deprecated, used in the initial version only
+     */
+    public void setMethodQueryScope(String token, String selfPackage, String declaringClassName,
+                                    String selfAbsolutePath, Vector<String> importsList) {
+        this.token = token;
+        this.selfPackage = selfPackage;
+        this.declaringClassName = declaringClassName;
+        this.selfAbsolutePath = selfAbsolutePath;
+        this.importsList = importsList;
     }
 
     /*
@@ -104,8 +122,8 @@ public class Query {
                 System.err.println("Query.serach() " + declaringClassName + " ? " + classNode.getName());
             if (declaringClassName.equals(classNode.getName())) {
                 //search in its method table
-                if (classNode.methodTable.containsKey(methodName)) {
-                    Location loc = classNode.methodTable.get(methodName);
+                if (classNode.methodTable.containsKey(token)) {
+                    Location loc = classNode.methodTable.get(token);
                     loc.scope = "CLASS";
                     queryResult.add(loc);
                     // in fact, we should exit the method here. However, for validating we continue searching
@@ -130,8 +148,8 @@ public class Query {
                 ClassNode classNode = classEntry.getValue();
                 if (selfPackage.equals(classNode.getPackageStr())) {//same package
                     if (declaringClassName.equals(classNode.getName()))//accuracy class
-                        if (classNode.methodTable.containsKey(methodName)) {
-                            Location loc = classNode.methodTable.get(methodName);
+                        if (classNode.methodTable.containsKey(token)) {
+                            Location loc = classNode.methodTable.get(token);
                             loc.scope = "PACKAGE";
                             queryResult.add(loc);
                             packageFlag = true;
@@ -161,9 +179,9 @@ public class Query {
                 for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
                     if (pEntry.equals(classEntry.getValue().getPackageStr())) {//same package
                         if (declaringClassName.equals(classEntry.getValue().getName()))//same class
-                            if (classEntry.getValue().methodTable.containsKey(methodName)) {
+                            if (classEntry.getValue().methodTable.containsKey(token)) {
                                 //maybe contains multiple locations
-                                Location loc = classEntry.getValue().methodTable.get(methodName);
+                                Location loc = classEntry.getValue().methodTable.get(token);
                                 loc.scope = "IMPORTS";
                                 queryResult.add(loc);
                                 importFlag = true;
@@ -178,7 +196,7 @@ public class Query {
             /*if the above three steps are sound,
             then we can conclude that this method is out of the project!
              */
-            brutallySearch();
+            brutallySearchMethod();
         }
     }
 }

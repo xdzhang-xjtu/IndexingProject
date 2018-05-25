@@ -115,6 +115,8 @@ public class Project {
             if ((type & VARIABLE) != 0) {
             }
             if ((type & TYPE) != 0) {
+                ClassReferenceVisitor astVisitor = new ClassReferenceVisitor(compilationUnit, classNode);
+                compilationUnit.accept(astVisitor);
             }
             if (type == 0) {
                 System.err.println("ERROR: IN method applyReferenceVisitor");

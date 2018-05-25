@@ -54,8 +54,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
         if (!Indexing.DEBUG)
             System.err.println(name.getIdentifier());
         if (node.resolveMethodBinding() == null) {
-            Indexing.statistics.EXCEPTION_NULL_BINGDING++;
-//            printException(classNode.getUrl(), name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()));
+            Indexing.statistics.EXCEPTION_NULL_BINDING_METHOD++;
+            printException(classNode.getUrl(), name.getIdentifier(), compilationUnit.getLineNumber(name.getStartPosition()));
 //                System.exit(0);
         } else {
             ITypeBinding iTypeBinding = node.resolveMethodBinding().getDeclaringClass();
@@ -72,24 +72,22 @@ public class MethodReferenceVisitor extends ASTVisitor {
 
             if (isExternalMethod(destPackage)) {
                 Indexing.statistics.EXTERNAL_CALL++;
-//                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
-//                        compilationUnit.getLineNumber(name.getStartPosition()));
+                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
+                        compilationUnit.getLineNumber(name.getStartPosition()));
             } else {
                 String declaringClassName = iTypeBinding.getName();
                 //customize the query, by obtaining some info from CompilationUnit and I*Bindings
                 Query query = new Query();
                 //require absolute path, import table, and package name from classNade.
-                query.setQueryScope(name.getIdentifier(), classNode.getPackageStr(),
-                        declaringClassName, classNode.getAbsolutePath(), classNode.importTable);
-                query.setQueryScope(name.getIdentifier(), destPackage, declaringClassName);
+                query.setMethodQueryScope(name.getIdentifier(), destPackage, declaringClassName);
 
                 if (!Indexing.DEBUG)
-                    query.brutallySearch();
+                    query.brutallySearchMethod();//for testing
                 else
-                    query.search_v2();
+                    query.searchMethod();
 
                 if ((query.queryResult.size() == 0)) {
-                    Indexing.statistics.EXTERNAL_CALL++;
+                    Indexing.statistics.CALL_NOT_FOUND++;
                 } else {
                     Indexing.statistics.INTERNAL_CALL++;
                     if (query.queryResult.size() >= 2) {
@@ -97,8 +95,8 @@ public class MethodReferenceVisitor extends ASTVisitor {
                     }
                 }
                 //Here, we also can record the data.
-//                printCallRelation(classNode.getUrl(), name.getIdentifier(),
-//                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+                printCallRelation(classNode.getUrl(), name.getIdentifier(),
+                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
             }
         }
         return true;

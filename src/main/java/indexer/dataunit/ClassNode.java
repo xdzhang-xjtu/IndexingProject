@@ -40,14 +40,14 @@ public class ClassNode {
         this.absolutePath = absolutePath;
 
         this.methodTable = new HashMap<>();
-        this.classTable = new HashMap<>();
+        this.classLocation = null;
         this.definitionTable = new HashMap<>();
         this.importTable = new Vector<>();
         this.packageStr = "-";
     }
 
     public HashMap<String, Location> methodTable;
-    public HashMap<String, Location> classTable;
+    public Location classLocation;
     public HashMap<String, Location> definitionTable;
     public Vector<String> importTable;
 
