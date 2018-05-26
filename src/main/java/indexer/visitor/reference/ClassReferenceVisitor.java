@@ -26,7 +26,10 @@ public class ClassReferenceVisitor extends ASTVisitor {
 //            print(classNode.getUrl(), name.getFullyQualifiedName(), line, 1);
         } else {
             if (!iTypeBinding.isFromSource()) {
-                Indexing.statistics.CLASS_REF_EXTERNAL++;
+                if (iTypeBinding.isInterface())
+                    Indexing.statistics.INTERFACE_REF_EXTERNAL++;
+                else if (iTypeBinding.isClass())
+                    Indexing.statistics.CLASS_REF_EXTERNAL++;
 //                print(classNode.getUrl(), name.getFullyQualifiedName(), line, 2);
             } else {
                 String packageName = iTypeBinding.getPackage().getName();
@@ -41,7 +44,10 @@ public class ClassReferenceVisitor extends ASTVisitor {
                     Indexing.statistics.TYPE_REF_NOT_FOUND++;
                     print(classNode.getUrl(), name.getFullyQualifiedName(), line, 3);
                 } else {
-                    Indexing.statistics.CLASS_REF_INTERNAL++;
+                    if (iTypeBinding.isInterface())
+                        Indexing.statistics.INTERFACE_REF_INTERNAL++;
+                    else if (iTypeBinding.isClass())
+                        Indexing.statistics.CLASS_REF_INTERNAL++;
                 }
 
 //                printTypeRefRelation(classNode.getUrl(), name.getFullyQualifiedName(), line, query.queryResult);

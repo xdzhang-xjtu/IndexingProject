@@ -14,9 +14,9 @@ public class Statistics {
     public int INTERNAL_CALL;
     public int EXCEPTION_MULTI_DEFS;
     public int EXCEPTION_NULL_BINDING_METHOD;
-    public int DECLARING_INNER_CLASS;
-    public int DECLARING_TOP_CLASS;
     public int TYPE_REF;
+    public int LOCAL_TYPE_DECLARING;
+    public int TOP_TYPE_DECLARING;
     public int TYPE_REF_NOT_FOUND;
     public int CLASS_REF_INTERNAL;
     public int INTERFACE_REF_INTERNAL;
@@ -37,8 +37,8 @@ public class Statistics {
         this.INTERNAL_CALL = 0;
         this.EXCEPTION_MULTI_DEFS = 0;
         this.EXCEPTION_NULL_BINDING_METHOD = 0;
-        this.DECLARING_INNER_CLASS = 0;
-        this.DECLARING_TOP_CLASS = 0;
+        this.LOCAL_TYPE_DECLARING = 0;
+        this.TOP_TYPE_DECLARING = 0;
         this.TYPE_REF = 0;
         this.TYPE_REF_NOT_FOUND = 0;
         this.CLASS_REF_INTERNAL = 0;
@@ -97,18 +97,18 @@ public class Statistics {
     public String toString() {
         return "统计信息{" +
                 "代码总行数: " + computeLineNumber() +
-                ", 公有类数量：" + DECLARING_TOP_CLASS +
-                ", 内部类数量：" + DECLARING_INNER_CLASS +
+                ", 公有类型数量：" + TOP_TYPE_DECLARING +
+                ", 内部类型数量：" + LOCAL_TYPE_DECLARING +
                 "\nMethod: 调用数量: " + CALL +
                 ", 内部调用: " + INTERNAL_CALL +
                 ", 外部调用: " + EXTERNAL_CALL +
                 ", 未找到函数定义: " + CALL_NOT_FOUND +
                 ", NULL Binding: " + EXCEPTION_NULL_BINDING_METHOD +
                 ", 多定义异常: " + EXCEPTION_MULTI_DEFS +
-                "\nType: 引用数量: " + TYPE_REF +
+                "\nType: 类型引用数量: " + TYPE_REF +
                 ", 项目内类引用: " + CLASS_REF_INTERNAL +
-                ", 项目外类引用: " + CLASS_REF_EXTERNAL +
                 ", 项目内接口引用: " + INTERFACE_REF_INTERNAL +
+                ", 项目外类引用: " + CLASS_REF_EXTERNAL +
                 ", 项目外接口引用: " + INTERFACE_REF_EXTERNAL +
                 ", 未找到类型定义: " + TYPE_REF_NOT_FOUND +
                 ", NULL Binding: " + EXCEPTION_NULL_BINDING_TYPE +
