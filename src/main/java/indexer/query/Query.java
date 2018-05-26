@@ -14,6 +14,7 @@ public class Query {
     private String selfAbsolutePath;
     private Vector<String> importsList;
     private String destPackage;
+    private boolean isInnerClass;
 
 
     public Vector<Location> queryResult;
@@ -33,9 +34,10 @@ public class Query {
         this.declaringClassName = declaringClassName;
     }
 
-    public void setTypeQueryScope(String token, String destPackage) {
+    public void setTypeQueryScope(String token, String destPackage, boolean isInnerClass) {
         this.token = token;
         this.destPackage = destPackage;
+        this.isInnerClass = isInnerClass;
     }
 
     public void brutallySearchMethod() {
@@ -61,16 +63,18 @@ public class Query {
         boolean dest_package = false;
         for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
             ClassNode classNode = classEntry.getValue();
-            if (destPackage.equals(classNode.getPackageStr()) &&
-                    declaringClassName.equals(classNode.getName())) {
-                if (classNode.methodTable.containsKey(token)) {
-                    Location loc = classNode.methodTable.get(token);
-                    loc.scope = "DEST_PACKAGE";
-                    queryResult.add(loc);
-                    dest_package = true;
-                } else {
-                    System.err.println("ERROR: There is no a method.");
-                    System.exit(0);
+            if (destPackage.equals(classNode.getPackageStr())) {
+                if (declaringClassName.equals(classNode.getName()) ||//top level class
+                        classNode.containtInnerClass(declaringClassName)) {//inner class
+                    if (classNode.methodTable.containsKey(token)) {
+                        Location loc = classNode.methodTable.get(token);
+                        loc.scope = "DEST_PACKAGE";
+                        queryResult.add(loc);
+                        dest_package = true;
+                    } else {
+                        System.err.println("ERROR: There is no a method.");
+                        System.exit(0);
+                    }
                 }
             }
         }
@@ -87,9 +91,13 @@ public class Query {
     public void searchType() {//include class and interface
         for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
             ClassNode classNode = classEntry.getValue();
-            if (destPackage.equals(classNode.getPackageStr()) &&
-                    token.equals(classNode.getName())) {
-                queryResult.add(classEntry.getValue().classLocation);
+            if (destPackage.equals(classNode.getPackageStr())) {
+                if (isInnerClass == true && classEntry.getValue().containtInnerClass(token)) {
+                    queryResult.add(classEntry.getValue().innerClassTable.get(token));
+                } else {
+                    if (token.equals(classNode.getName()))
+                        queryResult.add(classEntry.getValue().classLocation);
+                }
             }
         }
     }

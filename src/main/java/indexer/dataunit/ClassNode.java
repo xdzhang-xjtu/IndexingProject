@@ -1,12 +1,16 @@
 package indexer.dataunit;
 
+import indexer.Indexing;
+
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class ClassNode {
 
     private String name;//class name without .java suffix
     private String url;
+    public boolean hasInnerClass;
 
     public String getName() {
         return name;
@@ -38,15 +42,17 @@ public class ClassNode {
         this.name = name;
         this.url = url;
         this.absolutePath = absolutePath;
-
+        this.hasInnerClass = false;
         this.methodTable = new HashMap<>();
         this.classLocation = null;
         this.definitionTable = new HashMap<>();
         this.importTable = new Vector<>();
+        this.innerClassTable = new HashMap<>();
         this.packageStr = "-";
     }
 
     public HashMap<String, Location> methodTable;
+    public HashMap<String, Location> innerClassTable;//inner class name -- location
     public Location classLocation;
     public HashMap<String, Location> definitionTable;
     public Vector<String> importTable;
@@ -61,6 +67,13 @@ public class ClassNode {
 
     private String packageStr;
 
+    public boolean containtInnerClass(String className) {
+        for (Map.Entry<String, Location> innerClassEntry : innerClassTable.entrySet()){
+            if (className.equals(innerClassEntry.getKey()))
+                return true;
+        }
+        return false;
+    }
 
     @Override
     public String toString() {

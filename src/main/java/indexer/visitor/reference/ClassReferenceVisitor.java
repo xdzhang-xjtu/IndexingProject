@@ -20,29 +20,31 @@ public class ClassReferenceVisitor extends ASTVisitor {
     public boolean visit(SimpleType node) {
         Indexing.statistics.TYPE_REF++;
         Name name = node.getName();
+        int line = compilationUnit.getLineNumber(name.getStartPosition());
         ITypeBinding iTypeBinding = node.resolveBinding();
         if (iTypeBinding == null) {
-            printException(classNode.getUrl(), name.getFullyQualifiedName(),
-                    compilationUnit.getLineNumber(name.getStartPosition()));
+//            print(classNode.getUrl(), name.getFullyQualifiedName(), line, 1);
         } else {
             if (!iTypeBinding.isFromSource()) {
                 Indexing.statistics.CLASS_REF_EXTERNAL++;
-                printExternalType(classNode.getUrl(), name.getFullyQualifiedName(),
-                        compilationUnit.getLineNumber(name.getStartPosition()));
+//                print(classNode.getUrl(), name.getFullyQualifiedName(), line, 2);
             } else {
                 String packageName = iTypeBinding.getPackage().getName();
-
                 Query query = new Query();
-                //require absolute path, import table, and package name from classNade.
-                query.setTypeQueryScope(name.getFullyQualifiedName(), packageName);
+                if (iTypeBinding.isMember())
+                    //require absolute path, import table, and package name from classNade.
+                    query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, true);
+                else
+                    query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, false);
                 query.searchType();
                 if ((query.queryResult.size() == 0)) {
                     Indexing.statistics.TYPE_REF_NOT_FOUND++;
+                    print(classNode.getUrl(), name.getFullyQualifiedName(), line, 3);
                 } else {
                     Indexing.statistics.CLASS_REF_INTERNAL++;
                 }
-                int line = compilationUnit.getLineNumber(name.getStartPosition());
-                printTypeRefRelation(classNode.getUrl(), name.getFullyQualifiedName(), line, query.queryResult);
+
+//                printTypeRefRelation(classNode.getUrl(), name.getFullyQualifiedName(), line, query.queryResult);
             }
         }
         return true;
@@ -65,17 +67,19 @@ public class ClassReferenceVisitor extends ASTVisitor {
         }
     }
 
-    public void printException(String path, String name, int lineNumber) {
+    public void print(String path, String name, int lineNumber, int type) {
         System.err.print("文件" + path + " # ");
         System.err.print("行" + lineNumber + " # ");
         System.err.print("类型引用" + name + " # ");
-        System.err.println("**Exception: Null Bindings!");
-    }
-
-    public void printExternalType(String path, String name, int lineNumber) {
-        System.err.print("文件" + path + " # ");
-        System.err.print("行" + lineNumber + " # ");
-        System.err.print("类型引用" + name + " # ");
-        System.err.println("外部类型");
+        if (type == 1) {
+            System.err.println("**Exception: Null Bindings!");
+        } else if (type == 2) {
+            System.err.println("外部类型");
+        } else if (type == 3) {
+            System.err.println("Unfound");
+        } else {
+            System.err.print(" ERROR: Wrong print type!");
+            System.exit(0);
+        }
     }
 }

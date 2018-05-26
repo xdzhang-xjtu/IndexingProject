@@ -8,6 +8,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 
+import java.util.HashMap;
+
 public class ClassDeclarationVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
     ClassNode classNode;
@@ -21,16 +23,24 @@ public class ClassDeclarationVisitor extends ASTVisitor {
         SimpleName name = node.getName();
         int line = compilationUnit.getLineNumber(name.getStartPosition());
         Location location = new Location(line, classNode.getUrl());
-        //other cases to be handled
-        if (!classNode.getName().equals(name.getIdentifier())) {
-            System.err.println("ERROR: File name with class name are different!-->" +
-                    classNode.getName() + "!=" + name.getIdentifier());
-            System.exit(0);
+        if (node.resolveBinding().isMember()) {//inner class
+            Indexing.statistics.DECLARING_INNER_CLASS++;
+            classNode.hasInnerClass = true;
+            classNode.innerClassTable.put(name.getIdentifier(), location);
+        } else if (node.resolveBinding().isTopLevel()) {//top level class
+            Indexing.statistics.DECLARING_TOP_CLASS++;
+            classNode.classLocation = location;
+        } else {
+            System.err.println("EXCEPTION: in ClassDeclarationVisitor.visit");
         }
-        Indexing.statistics.DECLARING_CLASS++;
-        classNode.classLocation = location;
-        if (!Indexing.DEBUG)
-            System.err.println(classNode.getName() + " : " + name.getIdentifier() + " @ " + location);
+        if (!Indexing.DEBUG) {
+            String string;
+            if (node.resolveBinding().isMember())
+                string = "内部类";
+            else
+                string = "非内部类";
+            System.err.println(classNode.getUrl() + " : " + name.getIdentifier() + " @ " + location + "--" + string);
+        }
         return true;
     }
 }

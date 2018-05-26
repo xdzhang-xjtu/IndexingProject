@@ -34,61 +34,50 @@ public class MethodReferenceVisitor extends ASTVisitor {
         }
     }
 
-    public void printException(String path, String name, int lineNumber) {
+    public void print(String path, String name, int lineNumber, int type) {
         System.err.print("文件" + path + " # ");
         System.err.print("行" + lineNumber + " # ");
-        System.err.print("调用" + name + " # ");
-        System.err.println("**ERROR: Null Bindings!");
-    }
-
-    public void printExternalMethod(String path, String name, int lineNumber) {
-        System.err.print("文件" + path + " # ");
-        System.err.print("行" + lineNumber + " # ");
-        System.err.print("调用" + name + " # ");
-        System.err.println("调用外部函数");
-    }
-
-    public void printUnfoundMethod(String path, String name, int lineNumber) {
-        System.err.print("文件" + path + " # ");
-        System.err.print("行" + lineNumber + " # ");
-        System.err.print("调用" + name + " # ");
-        System.err.println("Unfound");
+        System.err.print("类型引用" + name + " # ");
+        if (type == 1) {
+            System.err.println("**Exception: Null Bindings!");
+        } else if (type == 2) {
+            System.err.println("调用外部函数");
+        } else if (type == 3) {
+            System.err.println("Unfound");
+        } else {
+            System.err.print(" ERROR: Wrong print type!");
+            System.exit(0);
+        }
     }
 
     public boolean visit(MethodInvocation node) {
         Indexing.statistics.CALL++;
         SimpleName name = node.getName();
+        int line = compilationUnit.getLineNumber(name.getStartPosition());
         if (!Indexing.DEBUG)
             System.err.println(name.getIdentifier());
         if (node.resolveMethodBinding() == null) {
             Indexing.statistics.EXCEPTION_NULL_BINDING_METHOD++;
-            printException(classNode.getUrl(), name.getIdentifier(),
-                    compilationUnit.getLineNumber(name.getStartPosition()));
-//                System.exit(0);
+//            print(classNode.getUrl(), name.getIdentifier(), line, 1);
         } else {
             ITypeBinding iTypeBinding = node.resolveMethodBinding().getDeclaringClass();
-            String destPackage;
-            if (iTypeBinding.getPackage() == null) {
-                if (!Indexing.DEBUG) {
-                    System.err.println("Cannot resolve the package of declaring class");
-                    System.exit(0);
-                }
-                destPackage = "";// thus, perform no restrict
-            } else {
-                destPackage = iTypeBinding.getPackage().getName();
-            }
-
-            if (iTypeBinding.isFromSource())
-                System.err.println("from source, work");
-            if (isExternalMethod(destPackage)) {
+            if (!iTypeBinding.isFromSource()) {
                 Indexing.statistics.EXTERNAL_CALL++;
-                printExternalMethod(classNode.getUrl(), name.getIdentifier(),
-                        compilationUnit.getLineNumber(name.getStartPosition()));
+//                print(classNode.getUrl(), name.getIdentifier(), line, 2);
             } else {
+                String destPackage;
+                if (iTypeBinding.getPackage() == null) {
+                    if (Indexing.DEBUG) {
+                        System.err.println("Cannot resolve the package of declaring class");
+                        System.exit(0);
+                    }
+                    destPackage = "";// thus, perform no restrict
+                } else {
+                    destPackage = iTypeBinding.getPackage().getName();
+                }
                 String declaringClassName = iTypeBinding.getName();
                 //customize the query, by obtaining some info from CompilationUnit and I*Bindings
                 Query query = new Query();
-                //require absolute path, import table, and package name from classNade.
                 query.setMethodQueryScope(name.getIdentifier(), destPackage, declaringClassName);
 
                 if (!Indexing.DEBUG)
@@ -97,9 +86,9 @@ public class MethodReferenceVisitor extends ASTVisitor {
                     query.searchMethod();
 
                 if ((query.queryResult.size() == 0)) {
+                    System.err.println(name.getIdentifier() + "---" + destPackage + "---" + declaringClassName);
                     Indexing.statistics.CALL_NOT_FOUND++;
-                    printUnfoundMethod(classNode.getUrl(), name.getIdentifier(),
-                            compilationUnit.getLineNumber(name.getStartPosition()));
+                    print(classNode.getUrl(), name.getIdentifier(), line, 3);
                 } else {
                     Indexing.statistics.INTERNAL_CALL++;
                     if (query.queryResult.size() >= 2) {
@@ -107,18 +96,10 @@ public class MethodReferenceVisitor extends ASTVisitor {
                     }
                 }
                 //Here, we also can record the data.
-                printCallRelation(classNode.getUrl(), name.getIdentifier(),
-                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
+//                printCallRelation(classNode.getUrl(), name.getIdentifier(),
+//                        compilationUnit.getLineNumber(name.getStartPosition()), query.queryResult);
             }
         }
         return true;
-    }
-
-    private boolean isExternalMethod(String destPackage) {
-        for (String str : Indexing.externalLibs) {
-            if (str.equals(destPackage))
-                return true;
-        }
-        return false;
     }
 }

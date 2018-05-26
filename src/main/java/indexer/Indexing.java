@@ -33,10 +33,10 @@ public class Indexing {
         if (DEBUG) {
 //            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/javasyntax",
 //                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
-            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
-                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
-//            project.setPaths("/Users/xdzhang/IdeaProjects/IndexingProject",
-//                    "/Users/xdzhang/IdeaProjects/IndexingProject/src/main/java");
+//            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
+//                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
+            project.setPaths("/Users/xdzhang/test/java2jpa-master",
+                    "/Users/xdzhang/test/java2jpa-master/src/main/java");
 //            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/IndexingProject",
 //                    "/Users/zhangxiaodong10/IdeaProjects/IndexingProject/src/main/java");
 
@@ -67,14 +67,14 @@ public class Indexing {
         project.initialize();
         //collecting info
         statistics.setStartTimeCollection(System.currentTimeMillis());
-        project.applyDeclarationVisitor(project.IMPORT | project.PACKAGE | project.METHOD);
+        project.applyDeclarationVisitor(project.IMPORT | project.PACKAGE | project.METHOD | project.TYPE);
         statistics.setEndTimeCollection(System.currentTimeMillis());
         if (!DEBUG) {
             project.test();
         }
         //indexing info
         statistics.setStartTimeIndexing(System.currentTimeMillis());
-        project.applyReferenceVisitor(project.METHOD);
+        project.applyReferenceVisitor(project.METHOD | project.TYPE);
         statistics.setEndTimeIndexing(System.currentTimeMillis());
 
         statistics.setEndTimeTotal(System.currentTimeMillis());
