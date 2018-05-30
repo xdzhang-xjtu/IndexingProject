@@ -3,12 +3,7 @@ package indexer.visitor.declaration;
 import indexer.Indexing;
 import indexer.dataunit.ClassNode;
 import indexer.dataunit.Location;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-
-import java.util.HashMap;
+import org.eclipse.jdt.core.dom.*;
 
 public class ClassDeclarationVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
@@ -23,12 +18,13 @@ public class ClassDeclarationVisitor extends ASTVisitor {
         SimpleName name = node.getName();
         int line = compilationUnit.getLineNumber(name.getStartPosition());
         Location location = new Location(line, classNode.getUrl());
-        if (node.resolveBinding().isMember()) {//inner class
-            Indexing.statistics.DECLARING_INNER_CLASS++;
+        ITypeBinding iTypeBinding = node.resolveBinding();
+        if (iTypeBinding.isMember()) {//inner class
+            Indexing.statistics.LOCAL_TYPE_DECLARING++;
             classNode.hasInnerClass = true;
             classNode.innerClassTable.put(name.getIdentifier(), location);
         } else if (node.resolveBinding().isTopLevel()) {//top level class
-            Indexing.statistics.DECLARING_TOP_CLASS++;
+            Indexing.statistics.TOP_TYPE_DECLARING++;
             classNode.classLocation = location;
         } else {
             System.err.println("EXCEPTION: Unhandled private class or protected class " + name.getIdentifier() +

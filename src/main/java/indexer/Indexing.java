@@ -58,7 +58,6 @@ public class Indexing {
                     System.err.println("The source path is wrong!");
                     return;
                 }
-
                 project.setPaths(args[0], args[1]);
             }
         }
