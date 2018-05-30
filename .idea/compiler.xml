@@ -10,5 +10,8 @@
         <module name="java2jpa" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="org.eclipse.jdt.apt.core" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

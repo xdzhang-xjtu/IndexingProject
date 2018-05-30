@@ -31,14 +31,15 @@ public class ClassDeclarationVisitor extends ASTVisitor {
             Indexing.statistics.DECLARING_TOP_CLASS++;
             classNode.classLocation = location;
         } else {
-            System.err.println("EXCEPTION: in ClassDeclarationVisitor.visit");
+            System.err.println("EXCEPTION: Unhandled private class or protected class " + name.getIdentifier() +
+                    " in ClassDeclarationVisitor.visit");
         }
         if (!Indexing.DEBUG) {
             String string;
             if (node.resolveBinding().isMember())
                 string = "内部类";
             else
-                string = "非内部类";
+                string = "公有类";
             System.err.println(classNode.getUrl() + " : " + name.getIdentifier() + " @ " + location + "--" + string);
         }
         return true;

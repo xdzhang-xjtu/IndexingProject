@@ -29,22 +29,28 @@ public class ClassReferenceVisitor extends ASTVisitor {
                 Indexing.statistics.CLASS_REF_EXTERNAL++;
 //                print(classNode.getUrl(), name.getFullyQualifiedName(), line, 2);
             } else {
-                String packageName = iTypeBinding.getPackage().getName();
-                Query query = new Query();
-                if (iTypeBinding.isMember())
-                    //require absolute path, import table, and package name from classNade.
-                    query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, true);
-                else
-                    query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, false);
-                query.searchType();
-                if ((query.queryResult.size() == 0)) {
-                    Indexing.statistics.TYPE_REF_NOT_FOUND++;
-                    print(classNode.getUrl(), name.getFullyQualifiedName(), line, 3);
-                } else {
-                    Indexing.statistics.CLASS_REF_INTERNAL++;
-                }
+//                System.err.println(classNode.getUrl() + ":" + line + ":" + name.getFullyQualifiedName());
+                if (iTypeBinding.getPackage() != null) {
+                    String packageName = iTypeBinding.getPackage().getName();
+                    Query query = new Query();
+                    if (iTypeBinding.isMember())
+                        //require absolute path, import table, and package name from classNade.
+                        query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, true);
+                    else if (iTypeBinding.isTopLevel())
+                        query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, false);
+                    query.searchType();
+                    if ((query.queryResult.size() == 0)) {
+                        Indexing.statistics.TYPE_REF_NOT_FOUND++;
+//                        print(classNode.getUrl(), name.getFullyQualifiedName(), line, 3);
+                    } else {
+                        Indexing.statistics.CLASS_REF_INTERNAL++;
+                    }
 
 //                printTypeRefRelation(classNode.getUrl(), name.getFullyQualifiedName(), line, query.queryResult);
+                }else {
+                    Indexing.statistics.TYPE_REF_NOT_FOUND++;
+//                    print(classNode.getUrl(), name.getFullyQualifiedName(), line, 3);
+                }
             }
         }
         return true;
