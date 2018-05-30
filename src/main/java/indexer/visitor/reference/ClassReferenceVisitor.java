@@ -10,11 +10,11 @@ import java.util.Vector;
 
 public class ClassReferenceVisitor extends ASTVisitor {
     CompilationUnit compilationUnit;
-    ClassNode classNode;
+    String path;
 
-    public ClassReferenceVisitor(CompilationUnit compilationUnit, ClassNode classNode) {
+    public ClassReferenceVisitor(CompilationUnit compilationUnit, String path) {
         this.compilationUnit = compilationUnit;
-        this.classNode = classNode;
+        this.path = path;
     }
 
     public boolean visit(SimpleType node) {
@@ -23,33 +23,45 @@ public class ClassReferenceVisitor extends ASTVisitor {
         int line = compilationUnit.getLineNumber(name.getStartPosition());
         ITypeBinding iTypeBinding = node.resolveBinding();
         if (iTypeBinding == null) {
-//            print(classNode.getUrl(), name.getFullyQualifiedName(), line, 1);
+            Indexing.statistics.CLASS_REF_EXTERNAL++;
+//            print(path, name.getFullyQualifiedName(), line, 1);
         } else {
             if (!iTypeBinding.isFromSource()) {
-                Indexing.statistics.CLASS_REF_EXTERNAL++;
-//                print(classNode.getUrl(), name.getFullyQualifiedName(), line, 2);
+                if (iTypeBinding.isInterface())
+                    Indexing.statistics.INTERFACE_REF_EXTERNAL++;
+                else if (iTypeBinding.isClass())
+                    Indexing.statistics.CLASS_REF_EXTERNAL++;
+//                print(path, name.getFullyQualifiedName(), line, 2);
             } else {
-//                System.err.println(classNode.getUrl() + ":" + line + ":" + name.getFullyQualifiedName());
                 if (iTypeBinding.getPackage() != null) {
                     String packageName = iTypeBinding.getPackage().getName();
                     Query query = new Query();
-                    if (iTypeBinding.isMember())
-                        //require absolute path, import table, and package name from classNade.
-                        query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, true);
-                    else if (iTypeBinding.isTopLevel())
-                        query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, false);
+                    if (iTypeBinding.isMember()) {
+                        if (iTypeBinding.getDeclaringClass() != null) {
+//                            System.err.println(iTypeBinding.getName() + " declaring class is " +
+//                                    iTypeBinding.getDeclaringClass().getName());
+                            query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, true,
+                                    iTypeBinding.getDeclaringClass().getName());
+                        } else {
+
+                        }
+
+                    } else
+                        query.setTypeQueryScope(name.getFullyQualifiedName(), packageName, false, "");
                     query.searchType();
                     if ((query.queryResult.size() == 0)) {
                         Indexing.statistics.TYPE_REF_NOT_FOUND++;
-//                        print(classNode.getUrl(), name.getFullyQualifiedName(), line, 3);
+                        print(path, name.getFullyQualifiedName(), line, 3);
                     } else {
-                        Indexing.statistics.CLASS_REF_INTERNAL++;
+                        if (iTypeBinding.isInterface())
+                            Indexing.statistics.INTERFACE_REF_INTERNAL++;
+                        else if (iTypeBinding.isClass())
+                            Indexing.statistics.CLASS_REF_INTERNAL++;
                     }
-
-//                printTypeRefRelation(classNode.getUrl(), name.getFullyQualifiedName(), line, query.queryResult);
-                }else {
-                    Indexing.statistics.TYPE_REF_NOT_FOUND++;
-//                    print(classNode.getUrl(), name.getFullyQualifiedName(), line, 3);
+//                    printTypeRefRelation(path, name.getFullyQualifiedName(), line, query.queryResult);
+                } else {
+                    Indexing.statistics.CLASS_REF_EXTERNAL++;
+//                    print(path, name.getFullyQualifiedName(), line, 1);
                 }
             }
         }

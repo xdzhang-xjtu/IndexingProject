@@ -3,7 +3,7 @@ package indexer.dataunit;
 public class Location {
     public int lineNumber;
     public String path;
-    public String scope;//class, package, import, global
+    public String scope;//dest package, global
 
     public Location(int lineNumber, String path) {
         this.lineNumber = lineNumber;

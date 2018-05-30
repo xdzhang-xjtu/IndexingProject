@@ -7,38 +7,20 @@ import java.io.File;
 
 public class Indexing {
     final static public boolean DEBUG = true;
-    final static public String[] externalLibs = {
-            "java.applet",
-            "java.awt",
-            "java.beans",
-            "java.io",
-            "java.lang",
-            "java.math",
-            "java.net",
-            "java.rmi",
-            "java.security",
-            "java.sql",
-            "java.text",
-            "java.util",
-            "javax.accessibility",
-            "javax.naming",
-            "javax.rmi",
-            "javax.sound",
-            "javax.swing"};
     static public Project project = new Project();
     static public Statistics statistics = new Statistics();
 
     static public void main(String[] args) {
         statistics.setStartTimeTotal(System.currentTimeMillis());
         if (DEBUG) {
-//            project.setPaths("/Users/zhangxiaodong10/test/log4j-trunk",
-//                    "/Users/zhangxiaodong10/test/log4j-trunk/src/main/java");
-            project.setPaths("/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core",
-                    "/Users/zhangxiaodong10/test/org.eclipse.jdt.apt.core/src");
+//            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/javasyntax",
+//                    "/Users/zhangxiaodong10/IdeaProjects/javasyntax/src/main/java");
+            project.setPaths("/Users/xdzhang/test/org.eclipse.jdt.apt.core",
+                    "/Users/xdzhang/test/org.eclipse.jdt.apt.core/src");
 //            project.setPaths("/Users/xdzhang/test/java2jpa-master",
 //                    "/Users/xdzhang/test/java2jpa-master/src/main/java");
-//            project.setPaths("/Users/zhangxiaodong10/IdeaProjects/IndexingProject",
-//                    "/Users/zhangxiaodong10/IdeaProjects/IndexingProject/src/main/java");
+//            project.setPaths("/Users/xdzhang/IdeaProjects/IndexingProject",
+//                    "/Users/xdzhang/IdeaProjects/IndexingProject/src/main/java");
 
         } else {
             if (args.length < 2) {
@@ -66,14 +48,12 @@ public class Indexing {
         project.initialize();
         //collecting info
         statistics.setStartTimeCollection(System.currentTimeMillis());
-        project.applyDeclarationVisitor(project.IMPORT | project.PACKAGE | project.TYPE | project.METHOD);
+        project.applyDeclarationVisitor(project.TYPE);
         statistics.setEndTimeCollection(System.currentTimeMillis());
-        if (!DEBUG) {
-            project.test();
-        }
+
         //indexing info
         statistics.setStartTimeIndexing(System.currentTimeMillis());
-        project.applyReferenceVisitor(project.TYPE | project.METHOD);
+        project.applyReferenceVisitor(project.TYPE);
         statistics.setEndTimeIndexing(System.currentTimeMillis());
 
         statistics.setEndTimeTotal(System.currentTimeMillis());

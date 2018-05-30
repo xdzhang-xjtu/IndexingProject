@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Map;
+import java.util.Vector;
 
 public class Statistics {
     public int CALL;
@@ -15,7 +16,7 @@ public class Statistics {
     public int EXCEPTION_MULTI_DEFS;
     public int EXCEPTION_NULL_BINDING_METHOD;
     public int TYPE_REF;
-    public int LOCAL_TYPE_DECLARING;
+    public int MEMBER_TYPE_DECLARING;
     public int TOP_TYPE_DECLARING;
     public int TYPE_REF_NOT_FOUND;
     public int CLASS_REF_INTERNAL;
@@ -37,7 +38,7 @@ public class Statistics {
         this.INTERNAL_CALL = 0;
         this.EXCEPTION_MULTI_DEFS = 0;
         this.EXCEPTION_NULL_BINDING_METHOD = 0;
-        this.LOCAL_TYPE_DECLARING = 0;
+        this.MEMBER_TYPE_DECLARING = 0;
         this.TOP_TYPE_DECLARING = 0;
         this.TYPE_REF = 0;
         this.TYPE_REF_NOT_FOUND = 0;
@@ -96,9 +97,9 @@ public class Statistics {
     @Override
     public String toString() {
         return "统计信息{" +
-                "代码总行数: " + computeLineNumber() +
+                "\n代码总行数: " + computeLineNumber() +
                 ", 公有类型数量：" + TOP_TYPE_DECLARING +
-                ", 内部类型数量：" + LOCAL_TYPE_DECLARING +
+                ", 内部类型数量：" + MEMBER_TYPE_DECLARING +
                 "\nMethod: 调用数量: " + CALL +
                 ", 内部调用: " + INTERNAL_CALL +
                 ", 外部调用: " + EXTERNAL_CALL +
@@ -122,10 +123,11 @@ public class Statistics {
         int LINENUMBER = 0;
         FileReader fr = null;
         BufferedReader br = null;
-        for (Map.Entry<String, ClassNode> classEntry : Indexing.project.projectData.entrySet()) {
+        for (String javaFile : Indexing.project.javaFiles) {
+
             try {
-                File file = new File(classEntry.getKey());
-                if (!file.exists() || !classEntry.getKey().endsWith(".java")) {
+                File file = new File(javaFile);
+                if (!file.exists() || !javaFile.endsWith(".java")) {
                     System.err.println("ERROR: File is not qualified!");
                     System.exit(0);
                 }

@@ -1,85 +1,92 @@
 package indexer.dataunit;
 
-import indexer.Indexing;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
+import java.util.Objects;
 
 public class ClassNode {
 
-    private String name;//class name without .java suffix
-    private String url;
-    public boolean hasInnerClass;
+    private String className;//class name without .java suffix
+    private String packageName;
+    private String absolutePath;
+    public Location classLocation;
 
-    public String getName() {
-        return name;
+    public HashMap<String, Location> methodTable;// how to give a method a unique name
+    public HashMap<String, Location> innerClassTable;//inner class name -- location
+    public HashMap<String, Location> fieldTable;//inner class name -- location
+
+    public String getClassName() {
+        return className;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setClassName(String className) {
+        this.className = className;
     }
 
     public void setAbsolutePath(String absolutePath) {
         this.absolutePath = absolutePath;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    private String absolutePath;
-
     public String getAbsolutePath() {
         return absolutePath;
     }
 
-    public ClassNode(String name, String url, String absolutePath) {
-        this.name = name;
-        this.url = url;
+    public ClassNode(String className, String packageName, String absolutePath) {
+        this.className = className;
+        this.packageName = packageName;
         this.absolutePath = absolutePath;
-        this.hasInnerClass = false;
-        this.methodTable = new HashMap<>();
         this.classLocation = null;
-        this.definitionTable = new HashMap<>();
-        this.importTable = new Vector<>();
+        this.methodTable = new HashMap<>();
         this.innerClassTable = new HashMap<>();
-        this.packageStr = "-";
+        this.fieldTable = new HashMap<>();
     }
 
-    public HashMap<String, Location> methodTable;
-    public HashMap<String, Location> innerClassTable;//inner class name -- location
-    public Location classLocation;
-    public HashMap<String, Location> definitionTable;
-    public Vector<String> importTable;
-
-    public String getPackageStr() {
-        return packageStr;
+    public boolean hasInnerClass() {
+        if (innerClassTable.size() == 0)
+            return false;
+        return true;
     }
-
-    public void setPackageStr(String packageStr) {
-        this.packageStr = packageStr;
-    }
-
-    private String packageStr;
 
     public boolean containtInnerClass(String className) {
-        for (Map.Entry<String, Location> innerClassEntry : innerClassTable.entrySet()){
+        for (Map.Entry<String, Location> innerClassEntry : innerClassTable.entrySet()) {
             if (className.equals(innerClassEntry.getKey()))
                 return true;
         }
         return false;
     }
 
+    public Location getInnerClassLocation(String className) {
+        if (innerClassTable.size() == 0) {
+            System.err.println("This class has no inner class.");
+            System.exit(0);
+        }
+        if (innerClassTable.containsKey(className)) {
+            return innerClassTable.get(className);
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return "ClassFile{" +
-                "name='" + name + '\'' +
-                ", url='" + url + '\'' +
+                "class name='" + className + '\'' +
+                ", package='" + packageName + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClassNode classNode = (ClassNode) o;
+        return Objects.equals(className, classNode.className) &&
+                Objects.equals(packageName, classNode.packageName);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(className, packageName);
     }
 }
