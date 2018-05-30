@@ -1,7 +1,9 @@
 #Requirements
 
+For java language.
+
 1. need global name for each reference and definition.
-2. parallel processing
+？ parallel processing
 4. build a global table for indexing
 5. accuracy
 
